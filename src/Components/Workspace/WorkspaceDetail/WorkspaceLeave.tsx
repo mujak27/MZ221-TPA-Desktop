@@ -2,9 +2,9 @@ import { IonButton, IonIcon, IonItem, IonModal, IonTitle } from '@ionic/react';
 import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { checkmarkCircle, closeCircle, exit } from 'ionicons/icons';
 import React from 'react';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeWorkspace } from '../../Model/model';
-import { useWorkspaceContext } from './WorkspaceContext';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { Tables, TypeWorkspace } from '../../../Model/model';
+import { useWorkspaceContext } from '../WorkspaceContext';
 
 type props = {
   showModal : boolean,
@@ -13,7 +13,7 @@ type props = {
 
 export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh, user, history} = useGlobalContext();
-  const {workspace, currentUser, members} = useWorkspaceContext();
+  const {workspace, userWorkspace: currentUser, workspaceMembers: members} = useWorkspaceContext();
   
   const onLeave = async ()=>{
     const newMemberUids = Array.from(workspace.workspaceMembers);
@@ -31,7 +31,6 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
     memberNotAdmin = memberNotAdmin.filter((member)=>{
       return !((member.userUid == user.userUid) || member.isAdmin)
     })
-    console.info(memberNotAdmin);
     if(memberNotAdmin.length > 0){
       alert('you are the last admin!, set anyone as admin or just delete the workspace');
       return;

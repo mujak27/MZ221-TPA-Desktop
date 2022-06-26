@@ -21,6 +21,7 @@ let globalContext = createContext<typeGlobalContext>({
   user: {
     userUid: '',
     userEmail: '',
+    userBio: '',
     userInvitation: [],
     userName: '',
     userNotifFreq: enumNotifFreq.Instant,
@@ -57,9 +58,7 @@ export const ContextProvider = ({children }: props)=>{
     return <div>fetching user data...</div>;
   }
 
-  console.info(resUser);
   const user = resUser[0] as TypeUser;
-  console.info(user);
   globalContext = createContext<typeGlobalContext>({
     auth,
     user,

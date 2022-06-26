@@ -1,10 +1,11 @@
 import { IonCol, IonGrid, IonItem, IonRow, IonTitle } from '@ionic/react';
 import { collection, query, where } from 'firebase/firestore';
+import { union, uniqBy } from 'lodash';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { KeyBoard, Tables, TypeBoard } from '../../Model/model';
+import { BoardVisibility, KeyBoard, Tables, TypeBoard } from '../../Model/model';
 import { BoardItem } from '../Board/BoardItem';
 import '../style.css';
 import { useWorkspaceContext } from './WorkspaceContext';
@@ -20,22 +21,43 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
   const user = globalContext.user;
   const {workspace} = useWorkspaceContext();
 
-  const boardRef = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards);
-  const {status: statusBoard, data: resBoards} = useFirestoreCollectionData(query(boardRef,
+  const refBoard = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards);
+  const {status: statusPrivBoard, data: resPrivBoards} = useFirestoreCollectionData(query(refBoard,
       where(KeyBoard.boardMembers, 'array-contains', user.userUid),
   ), {
     idField: 'uid',
   });
+  const {status: statusPublicBoard, data: resPublicBoards} = useFirestoreCollectionData(query(refBoard,
+      where(KeyBoard.boardVisibility, '==', BoardVisibility.Public),
+  ), {
+    idField: 'uid',
+  });
 
-  const boards = resBoards as Array<TypeBoard>;
-
-  if (statusBoard === 'loading') {
+  const {status: statusWorkspaceBoard, data: resWorkspaceBoards} = useFirestoreCollectionData(query(refBoard,
+      where(KeyBoard.boardVisibility, '==', BoardVisibility.Workspace),
+  ), {
+    idField: 'uid',
+  });
+  
+  
+  if (statusPrivBoard === 'loading' || statusWorkspaceBoard === 'loading' || statusPublicBoard === 'loading') {
     return (
       <div>
         loading board data
       </div>
     );
   }
+  
+  const privBoards = resPrivBoards as Array<TypeBoard>
+  const workspaceBoards = resWorkspaceBoards as Array<TypeBoard>
+  const publicBoards = resPublicBoards as Array<TypeBoard>
+
+  let boards = union(privBoards, publicBoards);
+  if(workspace.workspaceMembers.includes(user.uid as string)){
+    boards = union(boards, workspaceBoards);
+  }
+  boards = uniqBy(boards, 'uid');
+
 
 
   const ItemInRow = 6;
@@ -47,14 +69,13 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
     );
   });
 
-  console.info('========')
   const boardJsxChunkGenerator = ()=>{
     const source = boardJsx;
     const res : Array<JSX.Element> = [];
     for(let i=0; i < source.length; i+=ItemInRow){
       const chunk = source.slice(i, i+ItemInRow);
       res.push((
-        <IonRow>
+        <IonRow key={nanoid()}>
           {(chunk)}
         </IonRow>
       ))

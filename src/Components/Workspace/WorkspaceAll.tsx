@@ -47,11 +47,9 @@ const WorkspaceAll = ()=>{
     );
   });
 
-  console.info('========')
   const workspaceJsxChunkGenerator = ()=>{
     const source = workspacesJSX;
     const res : Array<JSX.Element> = [];
-    console.info(source.length);
     for(let i=0; i < source.length; i+=ItemInRow){
       const chunk = source.slice(i, i+ItemInRow);
       res.push((

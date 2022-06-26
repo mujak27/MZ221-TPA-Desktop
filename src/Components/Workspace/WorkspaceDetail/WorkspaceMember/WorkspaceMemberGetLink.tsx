@@ -2,8 +2,8 @@
 import { IonButton, IonInput, IonItem, IonLabel, IonText } from '@ionic/react';
 import { addDoc, collection, DocumentReference } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { EnumItemType, Tables, TypeInvitationLink } from '../../../Model/model';
+import { useGlobalContext } from '../../../../context/ContextProvider';
+import { EnumItemType, Tables, TypeInvitationLink } from '../../../../Model/model';
 
 type props = {
   itemType : EnumItemType

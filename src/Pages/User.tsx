@@ -1,6 +1,6 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import React, { useState } from 'react';
-import { Invitation } from '../Components/Profile/Invitation';
+import { Invitation } from '../Components/Profile/Invitation/Invitation';
 import { Notification } from '../Components/Profile/Notification';
 import { Profile } from '../Components/Profile/Profile';
 import { useGlobalContext } from '../context/ContextProvider';
@@ -46,7 +46,7 @@ const User = () => {
               invitation
           </IonButton>
           <IonButton onClick={()=>setTab(Tabs.notification)}>
-              noificaion
+              notificaion
           </IonButton>
         </IonToolbar>
         {CurrentTab}

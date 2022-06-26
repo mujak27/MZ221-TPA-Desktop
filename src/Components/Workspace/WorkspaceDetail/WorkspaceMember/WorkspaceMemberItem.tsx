@@ -2,9 +2,9 @@ import { IonButton, IonItem } from '@ionic/react';
 import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { KeyUser, Tables, TypeMember, TypeUser, TypeWorkspace } from '../../../Model/model';
-import { useWorkspaceContext } from '../WorkspaceContext';
+import { useGlobalContext } from '../../../../context/ContextProvider';
+import { KeyUser, Tables, TypeMember, TypeUser, TypeWorkspace } from '../../../../Model/model';
+import { useWorkspaceContext } from '../../WorkspaceContext';
 
 type props = {
   member : TypeMember,
@@ -29,7 +29,6 @@ export const WorkspaceMemberItem : React.FC<props> = ({member, userUid})=>{
   }
 
   const user = (resUsers as Array<TypeUser>)[0];
-  console.info(user);
 
   const onKickHandle = async ()=>{
     try {
@@ -39,7 +38,6 @@ export const WorkspaceMemberItem : React.FC<props> = ({member, userUid})=>{
       batch.update(refWorkspace, {
         workspaceMembers:
           workspace.workspaceMembers.filter((memberUid)=>{
-            console.info(memberUid);
             if (memberUid == member.userUid as string) return false;
             return true;
           }),
@@ -47,7 +45,7 @@ export const WorkspaceMemberItem : React.FC<props> = ({member, userUid})=>{
       await batch.commit();
       alert('removed');
     } catch (e) {
-      console.info(e);
+      alert(e);
     }
   };
 

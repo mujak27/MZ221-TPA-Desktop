@@ -1,13 +1,8 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonIcon, IonItem, IonModal, IonRow, IonTitle } from '@ionic/react';
-import { collection } from 'firebase/firestore';
 import { closeCircle, peopleCircle } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { useFirestoreCollectionData } from 'reactfire';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeMember } from '../../../Model/model';
-import { useWorkspaceContext } from '../WorkspaceContext';
-import { WorkspaceMemberDelete } from './WorkspaceMemberDelete';
 import { WorkspaceMemberInvite } from './WorkspaceMemberInvite';
+import { WorkspaceMemberManage } from './WorkspaceMemberManage';
 
 type props = {
   showModal : boolean,
@@ -22,24 +17,7 @@ export enum Tabs {
 }
 
 export const WorkspaceMember : React.FC<props> = ({showModal, setShowModal}) => {
-  const {firestore} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
   const [tab, setTab] = useState<Tabs>(Tabs.Invite);
-  const workspaceUid = workspace.uid as string;
-
-  const refMembers = collection(firestore, Tables.Workspaces, workspaceUid, Tables.Members );
-  const {status: statusMembers, data: resMembers} = useFirestoreCollectionData(refMembers, {
-    idField: 'uid',
-  });
-
-
-  if (statusMembers === 'loading') {
-    return <>loading members data...</>;
-  }
-
-  const members = resMembers as Array<TypeMember>;
-  console.info(members);
-
 
   return (
     <>
@@ -75,7 +53,7 @@ export const WorkspaceMember : React.FC<props> = ({showModal, setShowModal}) => 
               </>
             ):(
               <>
-                <WorkspaceMemberDelete />
+                <WorkspaceMemberManage />
               </>
             )
           }

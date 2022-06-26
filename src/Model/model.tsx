@@ -61,6 +61,7 @@ export type TypeUser = {
   uid? : string,
   userUid : string,
   userName : string,
+  userBio : string,
   userEmail : string,
   userNotifFreq : enumNotifFreq,
   userNotifications : Array<String>
@@ -137,6 +138,8 @@ export type TypeBoard = {
   boardCreatedDate : FieldValue
   boardMembers : Array<string>
   boardGroupUids : Array<string>
+  boardDeleteRequest : Array<string>
+  boardLogs : Array<string>
 }
 
 export enum KeyWorkspace {
@@ -146,7 +149,7 @@ export enum KeyWorkspace {
   workspaceMembers = 'workspaceMembers',
   workspaceDescription = 'workspaceDescription',
 }
-// 
+
 export type TypeWorkspace = {
   uid? : string
   workspaceName : string

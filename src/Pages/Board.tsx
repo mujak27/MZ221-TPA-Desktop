@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router';
 import { BoardAll } from '../Components/Board/BoardAll';
-import { BoardDetail } from '../Components/Board/BoardDetail';
+import { BoardDetail } from '../Components/Board/BoardDetail/BoardDetail';
 
 const Board = () => {
   return (

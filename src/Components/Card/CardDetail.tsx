@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/react';
-import { doc, writeBatch } from 'firebase/firestore';
+import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { close } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
@@ -14,7 +14,7 @@ type props = {
 }
 
 export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
-  const firestore = useGlobalContext().firestore;
+  const {firestore, setRefresh} = useGlobalContext();
   const [title, setTitle] = useState(card.cardTitle);
   const [description, setDescription] = useState(card.cardDescription);
   const [checklists, setChecklists] = useState(card.cardChecklists);
@@ -44,6 +44,12 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
     }
   };
 
+  const onDeleteHandle = async ()=>{
+    const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string);
+    await deleteDoc(cardRef);
+    setRefresh(true);
+  }
+
   const onExitHandle = () => {
     exitHandle();
   };
@@ -70,7 +76,10 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
         </IonItem>
         <CardChecklists card={card} checklists={checklists} setChecklists={setChecklists}/>
       </IonContent>
-      <IonButton onClick={onSaveHandle}>save</IonButton>
+      <IonItem>
+        <IonButton onClick={onSaveHandle}>save</IonButton>
+        <IonButton onClick={onDeleteHandle}>delete</IonButton>
+      </IonItem>
     </>
   );
 };

@@ -34,7 +34,8 @@ export const BoardCreateGroup : React.FC<props> = ({}) => {
         ],
       } as TypeBoard);
       await batch.commit();
-      // setShowCreate(false);
+      alert('success creating group');
+      setShowCreate(false);
       setRefresh(true);
     } catch (exception) {
       alert(exception);

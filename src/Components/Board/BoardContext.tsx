@@ -1,14 +1,16 @@
-import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, query, serverTimestamp } from 'firebase/firestore';
 import React, { createContext, useContext } from 'react';
 import { useParams } from 'react-router';
 import { useFirestoreCollectionData, useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { BoardStatus, BoardVisibility, Tables, TypeBoard, TypeGroup } from '../../Model/model';
+import { BoardStatus, BoardVisibility, Tables, TypeBoard, TypeGroup, TypeMember } from '../../Model/model';
 import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 
 type TypeBoardContext = {
   board : TypeBoard,
+  userBoard : TypeMember,
   groups : TypeGroup[],
+  boardMembers: Array<TypeMember>
 }
 
 let boardContext = createContext<TypeBoardContext>({
@@ -20,8 +22,16 @@ let boardContext = createContext<TypeBoardContext>({
     boardStatus: BoardStatus.Open,
     boardVisibility: BoardVisibility.Board,
     boardGroupUids: [],
+    boardLogs: [],
+    boardDeleteRequest: [],
   } as TypeBoard,
+  userBoard : {
+    isAdmin: false,
+    isOwner: false,
+    userUid: '',
+  },
   groups: [],
+  boardMembers: [],
 });
 
 export const useBoardContext = ()=>{
@@ -34,8 +44,7 @@ type props = {
 }
 
 export const BoardContext : React.FC<props> = ({children}) => {
-  const globalContext = useGlobalContext();
-  const firestore = globalContext.firestore;
+  const {firestore, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
 
   const {boardUid} = useParams() as {boardUid : string};
@@ -51,18 +60,30 @@ export const BoardContext : React.FC<props> = ({children}) => {
     idField: 'uid',
   });
 
-  if (statusBoard === 'loading' || statusGroups === 'loading') {
-    return <div>checking authorization...</div>;
+  
+  const refMember = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, boardUid, Tables.Members);
+  const {status: statusMember, data: resMembers} = useFirestoreCollectionData(query(
+      refMember,
+  ), {
+    idField: 'uid'
+  });
+
+  if (statusBoard === 'loading' || statusGroups === 'loading' || statusMember === 'loading') {
+    return <div>checking board authorization...</div>;
   }
 
   if (!resBoard) {
-    return <div>inalid url or you do not have access</div>;
+    return <div>inalid url or you do not have access to the board</div>;
   }
 
 
   const board = resBoard as TypeBoard;
   const groups = resGroups as TypeGroup[];
-  boardContext = createContext<TypeBoardContext>({board, groups});
+  const boardMembers = resMembers as Array<TypeMember>;
+  const userBoard = boardMembers.filter((member)=>{
+    return member.userUid == user.userUid as string
+  })[0];
+  boardContext = createContext<TypeBoardContext>({board, groups, boardMembers, userBoard});
 
 
   return (

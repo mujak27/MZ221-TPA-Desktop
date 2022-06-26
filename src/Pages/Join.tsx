@@ -26,14 +26,10 @@ export const Join = () => {
   const invitationLink = resInvitationLink as TypeInvitationLink;
 
   const date = new Date;
-  console.info(date.getTime());
   date.setDate(date.getDate()+7);
-  console.info(date.getTime());
-  console.info(invitationLink.InvitationExpired);
 
   if ((new Date).getTime() > invitationLink.InvitationExpired) return <>this link is expired</>;
 
-  console.info(joinUid);
   if (invitationLink.InvitationType == EnumItemType.Workspace) {
     return (<JoinWorkspace refWorkspace={invitationLink.refItem}/>);
   }

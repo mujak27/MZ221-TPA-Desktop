@@ -28,6 +28,8 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
         boardStatus: BoardStatus.Open,
         boardCreatedDate: serverTimestamp(),
         boardGroupUids: [],
+        boardLogs: [],
+        boardDeleteRequest: [],
       } as TypeBoard);
       await addDoc(collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, refBoard.id, Tables.Members ), {
         userUid: user.userUid,

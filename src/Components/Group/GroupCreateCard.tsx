@@ -37,7 +37,7 @@ export const GroupCreateCard : React.FC<props> = ({group}) => {
       await batch.commit();
       setRefresh(true);
     } catch (exception) {
-      console.info(exception);
+      alert(exception);
     }
   };
 

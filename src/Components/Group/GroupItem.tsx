@@ -1,17 +1,21 @@
-import { IonCard, IonCardContent, IonCardTitle } from '@ionic/react';
+import { IonButton, IonCard, IonCardContent, IonCardTitle, IonIcon } from '@ionic/react';
+import { deleteDoc, doc } from 'firebase/firestore';
+import { close } from 'ionicons/icons';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { Droppable } from 'react-beautiful-dnd';
 import styled from 'styled-components';
-import { TypeGroup } from '../../Model/model';
+import { useGlobalContext } from '../../context/ContextProvider';
+import { Tables, TypeGroup } from '../../Model/model';
+import { useBoardContext } from '../Board/BoardContext';
 import { CardItem } from '../Card/CardItem';
 import '../style.css';
+import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 import { GroupCreateCard } from './GroupCreateCard';
 
 type props = {
-  // groupUid : string
   group : TypeGroup
-  groupIndex : number
+  groupIndex : string
 }
 
 
@@ -21,29 +25,31 @@ const TaskList = styled.div`
 `;
 
 export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
-  // const firestore = useGlobalContext().firestore;
-  // const {workspace} = useWorkspaceContext();
-  // const {board} = useBoardContext();
-  // const refGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, groupUid);
-  // const {status: statusGroup, data: resGroup} = useFirestoreDocData(refGroup, {
-  //   idField: 'uid',
-  // });
+  const {firestore, setRefresh} = useGlobalContext();
+  const {workspace} = useWorkspaceContext();
+  const {board} = useBoardContext();
 
-  // if (statusGroup == 'loading') {
-  //   return <IonCard><IonCardTitle>loading...</IonCardTitle></IonCard>;
-  // }
 
-  // const group = resGroup as TypeGroup;
+  const onDelete = async ()=>{
+    const refGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, group.uid as string);
+    await deleteDoc(refGroup);
+    setRefresh(true);
+  }
+
+  if(!group) return null;
 
   return (
     <Container>
       <IonCard className='ion-padding groupItem'>
         <IonCardTitle>
+          <IonButton onClick={onDelete}>
+            <IonIcon icon={close}  style={{padding:'0 !important'}}/>
+          </IonButton>
           {group.groupName}
         </IonCardTitle>
         <IonCardContent>
           {<GroupCreateCard group={group}/>}
-          <Droppable droppableId={index as unknown as string}>
+          <Droppable droppableId={index}>
             { (provided) =>{
               return (
                 <TaskList ref={provided.innerRef} {...provided.droppableProps} >

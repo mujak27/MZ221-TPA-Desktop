@@ -2,9 +2,9 @@
 import { IonButton, IonInput, IonItem, IonItemDivider, IonTitle } from '@ionic/react';
 import { doc } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { EnumItemType, Tables } from '../../../Model/model';
-import { useWorkspaceContext } from '../WorkspaceContext';
+import { useGlobalContext } from '../../../../context/ContextProvider';
+import { EnumItemType, Tables } from '../../../../Model/model';
+import { useWorkspaceContext } from '../../WorkspaceContext';
 import { WorkspaceMemberGetEmail } from './WorkspaceMemberGetEmail';
 import { WorkspaceMemberGetLink } from './WorkspaceMemberGetLink';
 

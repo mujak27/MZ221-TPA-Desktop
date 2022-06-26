@@ -1,22 +1,19 @@
 /* eslint-disable no-unused-vars */
 import { IonButton, IonItem } from '@ionic/react';
-import { addDoc, collection, doc, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreDocData } from 'reactfire';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { getPath } from '../../Helper';
-import { Tables, TypeInvitation, TypeMember, TypeUser, TypeWorkspace } from '../../Model/model';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { getPath } from '../../../Helper';
+import { Tables, TypeInvitation, TypeMember, TypeWorkspace } from '../../../Model/model';
 
 type props = {
   invitation : TypeInvitation
 }
 
 export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
-  const {user, firestore, setRefresh} = useGlobalContext();
+  const {user, firestore} = useGlobalContext();
   const workspaceRef = invitation.itemRef;
-  console.info(invitation);
-
-  console.info(workspaceRef);
 
   const {status: statusWorkspace, data: resWorkspace} = useFirestoreDocData(workspaceRef, {
     idField: 'uid',
@@ -29,25 +26,26 @@ export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
 
   const workspace = resWorkspace as TypeWorkspace;
 
-  if (workspace.workspaceMembers.includes(user.userUid)) {
-    console.info('already a member');
-    const f = ()=>{
-      const refUser = doc(firestore, Tables.Users, user.userUid);
-      const batch = writeBatch(firestore);
-      batch.update(refUser, {
-        userInvitation : [
-          ...(user.userInvitation.filter((invitation)=>{
-            if(invitation.itemUid == workspace.uid as string) return false
-            return true;
-          }))
-        ]
-      } as TypeUser);
-      batch.commit();
-      setRefresh(true);
-      return null;
-    }
-    f();
-  }
+  // useEffect(()=>{
+  //   if (workspace.workspaceMembers.includes(user.userUid)) {
+  //     const f = ()=>{
+  //       const refUser = doc(firestore, Tables.Users, user.userUid);
+  //       const batch = writeBatch(firestore);
+  //       batch.update(refUser, {
+  //         userInvitation : [
+  //           ...(user.userInvitation.filter((invitation)=>{
+  //             if(invitation.itemUid == workspace.uid as string) return false
+  //             return true;
+  //           }))
+  //         ]
+  //       } as TypeUser);
+  //       batch.commit();
+  //       setRefresh(true);
+  //       return null;
+  //     }
+  //     f();
+  //   }
+  // }, []);
 
   const onClickHandle = async ()=>{
     try {
@@ -75,13 +73,13 @@ export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
       await batch.commit();
       alert('joined');
     } catch (e) {
-      console.info(e);
+      alert(e);
     }
   };
 
   return (
     <IonItem>
-      invitation to join to {workspace.workspaceName}
+      invitation to join to workspace {workspace.workspaceName}
       <IonButton onClick={onClickHandle}>join</IonButton>
     </IonItem>
   );

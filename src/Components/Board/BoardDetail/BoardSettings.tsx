@@ -4,59 +4,57 @@ import { checkmarkCircle, closeCircle, settings } from 'ionicons/icons';
 import { uniq } from 'lodash';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
-import { useWorkspaceContext } from './WorkspaceContext';
-
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { BoardVisibility, Tables, TypeBoard, WorkspaceVisibility } from '../../../Model/model';
+import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
+import { useBoardContext } from '../BoardContext';
 
 type props = {
   showModal : boolean,
   setShowModal : React.Dispatch<React.SetStateAction<boolean>>,
 }
 
-export const WorkspaceSettings : React.FC<props> = () => {
-  const {firestore, user, setRefresh}= useGlobalContext();
-  const {workspace, members} = useWorkspaceContext();
-  const [showDelete, setShowDelete] = useState(false);
-  const {history} = useGlobalContext();
+export const BoardSettings : React.FC<props> = ({showModal, setShowModal}) => {
+  const {firestore, user, setRefresh, history}= useGlobalContext();
+  const {workspace} = useWorkspaceContext();
+  const {board, boardMembers} = useBoardContext();
 
-  const [name, setName] = useState(workspace.workspaceName);
-  const [description, setDescription] = useState(workspace.workspaceDescription);
-  const [visibility, setVisibility] = useState(workspace.workspaceVisibility);
+  const [name, setName] = useState(board.boardName);
+  const [description, setDescription] = useState(board.boardDescription);
+  const [visibility, setVisibility] = useState(board.boardVisibility);
 
-  const refWorkspace = doc(firestore, Tables.Workspaces, workspace.uid as string);
-  const admins = members.filter((member)=>{
-    if(member.isAdmin) return true;
+  const refBoard = doc(firestore, Tables.Workspaces, board.uid as string, Tables.Boards, board.uid as string);
+  const boardAdmins = boardMembers.filter((boardMember)=>{
+    if(boardMember.isAdmin) return true;
     return false;
   });
-  const adminUids = admins.map((member)=>{
-    return member.userUid
+  const boardAdminUids = boardAdmins.map((boardAdmin)=>{
+    return boardAdmin.userUid
   })
 
 
   const onDelete = async ()=>{
-    let deleteRequest = [...workspace.workspaceDeleteRequest, user.userUid];
+    let deleteRequest = [...board.boardDeleteRequest, user.userUid];
     deleteRequest = uniq(deleteRequest);
-    const adminNotApproved = adminUids.filter((adminUids)=>{
+    const adminNotApproved = boardAdminUids.filter((adminUids)=>{
       if(deleteRequest.includes(adminUids)) return false;
       return true;
     })
-    console.info(adminNotApproved);
     if(adminNotApproved.length == 0){
-      deleteDoc(refWorkspace);
-      alert('workspace deleted!');
+      deleteDoc(refBoard);
+      alert('board deleted!');
       setRefresh(true);
-      history.push('/workspace');
+      history.push('/workspace' + workspace.uid as string);
     }else{
-      if(workspace.workspaceDeleteRequest.includes(user.userUid)) return;
+      if(board.boardDeleteRequest.includes(user.userUid)) return;
       const batch = writeBatch(firestore);
-      batch.update(refWorkspace, {
-        workspaceDeleteRequest: deleteRequest,
-        workspaceLogs:[
-          ...workspace.workspaceLogs,
-          `admin ${user.userName} has requested to delete workspace!`
+      batch.update(refBoard, {
+        boardDeleteRequest: deleteRequest,
+        boardLogs:[
+          ...board.boardLogs,
+          `admin ${user.userName} has requested to delete board!`
         ]
-      } as TypeWorkspace);
+      } as TypeBoard);
       await batch.commit();
       alert('announcement made');
     }
@@ -65,12 +63,12 @@ export const WorkspaceSettings : React.FC<props> = () => {
   const onSave = async ()=>{
     try {
       const batch = writeBatch(firestore);
-      const refWorkspace = doc(firestore, Tables.Workspaces, workspace.uid as string);
-      batch.update(refWorkspace, {
-        workspaceName: name,
-        workspaceDescription: description,
-        workspaceVisibility: visibility,
-      } as TypeWorkspace);
+      const refBoard = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string);
+      batch.update(refBoard, {
+        boardName: name,
+        boardDescription: description,
+        boardVisibility: visibility,
+      } as TypeBoard);
       await batch.commit();
       setRefresh(true);
       alert('new settings saved');
@@ -81,18 +79,17 @@ export const WorkspaceSettings : React.FC<props> = () => {
 
   return (
     <>
-      <IonButton color="primary" onClick={()=>setShowDelete(true)}>
+      <IonButton color="primary" onClick={()=>setShowModal(true)}>
         <IonIcon slot="icon-only" icon={settings} />
       </IonButton>
-      <IonModal isOpen={showDelete} onDidDismiss={()=>setShowDelete(false)}>
+      <IonModal isOpen={showModal} onDidDismiss={()=>setShowModal(false)}>
         <IonItem>
-          <IonButton onClick={()=>setShowDelete(false)}>
+          <IonButton onClick={()=>setShowModal(false)}>
             <IonIcon icon={closeCircle} />
           </IonButton>
-          <IonTitle size='large'>settings for {workspace.workspaceName}</IonTitle>
+          <IonTitle size='large'>settings for {board.boardName}</IonTitle>
         </IonItem>
         <IonContent>
-
           <IonItem>
             <IonLabel position='fixed'>Name</IonLabel>
             <IonInput
@@ -115,7 +112,8 @@ export const WorkspaceSettings : React.FC<props> = () => {
               }}
             >
               {
-                Object.keys(WorkspaceVisibility).map((visibility)=>{
+                Object.keys(BoardVisibility).map((visibility)=>{
+                  if(workspace.workspaceVisibility == WorkspaceVisibility.Workspace && visibility==BoardVisibility.Public) return null;
                   return (
                     <IonSelectOption
                       key={nanoid()}
@@ -140,10 +138,10 @@ export const WorkspaceSettings : React.FC<props> = () => {
           </IonButton>
           <IonItem>
             <IonTitle className='ion-text-center'>
-            Delete workspace {workspace.workspaceName}?
+            Delete Board {board.boardName}?
             </IonTitle>
             <IonItem style={{width: '100%'}}>
-              <IonButton color='primary' onClick={()=>setShowDelete(false)}>
+              <IonButton color='primary' onClick={()=>setShowModal(false)}>
                 <IonIcon icon={closeCircle} />
               </IonButton>
               <IonButton color='danger' onClick={onDelete}>

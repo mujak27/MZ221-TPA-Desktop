@@ -35,6 +35,7 @@ const _Register = (props:any) => {
         userNotifFreq: enumNotifFreq.Instant,
         userInvitation: [],
         userNotifications: [],
+        userBio: '',
       } as TypeUser);
       props.history.push('/home');
     } catch (exception) {

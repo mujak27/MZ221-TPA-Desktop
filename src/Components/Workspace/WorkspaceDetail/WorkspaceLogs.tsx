@@ -2,10 +2,10 @@ import { IonButton, IonIcon, IonItem, IonModal, IonText, IonTitle } from '@ionic
 import { doc, writeBatch } from 'firebase/firestore';
 import { close, mail } from 'ionicons/icons';
 import { nanoid } from 'nanoid';
-import React from 'react';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeWorkspace } from '../../Model/model';
-import { useWorkspaceContext } from './WorkspaceContext';
+import React, { useState } from 'react';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { Tables, TypeWorkspace } from '../../../Model/model';
+import { useWorkspaceContext } from '../WorkspaceContext';
 
 type props = {
   showModal : boolean,
@@ -14,23 +14,21 @@ type props = {
 
 export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh} = useGlobalContext();
-  const {workspace, currentUser} = useWorkspaceContext();
+  const {workspace, userWorkspace: currentUser} = useWorkspaceContext();
+  const [logs, setLogs] = useState(workspace.workspaceLogs);
 
   const onRemoveHandle = async (index : number)=>{
-    const newLogs = workspace.workspaceLogs
+    const newLogs = Array.from(logs);
     newLogs.splice(index);
-    console.info(newLogs);
+    setLogs(newLogs);
     const batch = writeBatch(firestore);
-    const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string);
-    batch.update(cardRef, {
+    const refWorkspace = doc(firestore, Tables.Workspaces, workspace.uid as string);
+    batch.update(refWorkspace, {
       workspaceLogs: newLogs
     } as TypeWorkspace);
     await batch.commit();
-    console.info('updated');
     setRefresh(true);
   }
-
-
 
   return (
     <>
@@ -39,11 +37,10 @@ export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
       </IonButton>
       <IonModal isOpen={showModal} onDidDismiss={()=>setShowModal(false)}>
         {
-          workspace.workspaceLogs.length  ?
-          workspace.workspaceLogs.map((log, index)=>{
+          logs.length ?
+          logs.map((log, index)=>{
             return (  
               <IonItem key={nanoid()}>
-                <IonText>{log}</IonText>
                 {
                   currentUser.isAdmin?
                     (
@@ -52,6 +49,7 @@ export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
                       </IonButton>
                     ):null
                 }
+                <IonText>{log}</IonText>
               </IonItem>
             )
           }) : <IonItem><IonTitle>nothing here yet...</IonTitle></IonItem>

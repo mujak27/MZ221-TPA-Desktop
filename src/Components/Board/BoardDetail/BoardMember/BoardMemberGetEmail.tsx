@@ -2,9 +2,10 @@ import { IonButton } from '@ionic/react';
 import { collection, doc, DocumentReference, query, where, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { EnumItemType, KeyUser, Tables, TypeUser, TypeInvitation } from '../../../Model/model';
-import { useWorkspaceContext } from '../WorkspaceContext';
+import { useGlobalContext } from '../../../../context/ContextProvider';
+import { EnumItemType, KeyUser, Tables, TypeInvitation, TypeUser } from '../../../../Model/model';
+import { useWorkspaceContext } from '../../../Workspace/WorkspaceContext';
+import { useBoardContext } from '../../BoardContext';
 
 type props = {
   userEmail: string,
@@ -12,9 +13,10 @@ type props = {
   itemRef : DocumentReference,
 }
 
-export const WorkspaceMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemRef: refWorkspace}) => {
+export const BoardMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemRef}) => {
   const {firestore} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
+  const {workspaceMembers} = useWorkspaceContext();
+  const {board} = useBoardContext();
 
   const refUsers = collection(firestore, Tables.Users );
   const {status: statusUsers, data: resUsers} = useFirestoreCollectionData(query(
@@ -32,7 +34,15 @@ export const WorkspaceMemberGetEmail : React.FC<props> = ({userEmail, itemUid, i
   }
 
   const user = (resUsers as Array<TypeUser>)[0];
-  const invited = workspace.workspaceMembers.includes(user.userUid as string);
+  const invited = board.boardMembers.includes(user.userUid as string);
+
+
+  if(workspaceMembers.filter(workspaceMember=>{
+    return workspaceMember.userUid == user.userUid
+  }).length == 0){
+    // not member of the workspace
+    return <>invite user {user.userName} to workspace first to join the board</>;
+  }
 
   const onInviteHandle = async () => {
     const batch = writeBatch(firestore);
@@ -42,8 +52,8 @@ export const WorkspaceMemberGetEmail : React.FC<props> = ({userEmail, itemUid, i
         ...user.userInvitation,
         {
           itemUid: itemUid,
-          invitationType: EnumItemType.Workspace,
-          itemRef: refWorkspace,
+          invitationType: EnumItemType.Board,
+          itemRef: itemRef,
         } as TypeInvitation,
       ],
     } as TypeUser);

@@ -1,16 +1,20 @@
-import { IonContent, IonTitle } from '@ionic/react';
+import { IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
 import { doc, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Redirect } from 'react-router';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeGroup } from '../../Model/model';
-import { GroupItem } from '../Group/GroupItem';
-import '../style.css';
-import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
-import { useBoardContext } from './BoardContext';
-import { BoardCreateGroup } from './BoardCreateGroup';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { Tables, TypeGroup } from '../../../Model/model';
+import { GroupItem } from '../../Group/GroupItem';
+import '../../style.css';
+import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
+import { useBoardContext } from '../BoardContext';
+import { BoardCreateGroup } from '../BoardCreateGroup';
+import { BoardLeave } from './BoardLeave';
+import { BoardLogs } from './BoardLogs';
+import { BoardMember } from './BoardMember/BoardMember';
+import { BoardSettings } from './BoardSettings';
 
 type props = {
 }
@@ -18,8 +22,13 @@ type props = {
 export const BoardDetail : React.FC<props> = ({}) => {
   const {firestore, history, setRefresh} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board} = useBoardContext();
+  const {board, userBoard} = useBoardContext();
   const {groups: groupContext } = useBoardContext();
+
+  const [showMember, setShowMember] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showLeave, setShowLeave] = useState(false);
   const [boardGroupUidsOrder] = useState(board.boardGroupUids);
   const [groups, setGroups] = useState(boardGroupUidsOrder.map((groupUid)=>{
     const temp = groupContext.filter((_group)=>{
@@ -34,7 +43,6 @@ export const BoardDetail : React.FC<props> = ({}) => {
 
   if(board == undefined){
     history.push('/workspace');
-    console.info('woww');
     setRefresh(true);
     return <Redirect to={'/workspace' + workspace.uid as string} />
   }
@@ -106,36 +114,44 @@ export const BoardDetail : React.FC<props> = ({}) => {
     }
   };
 
-  groups.forEach((group)=>{
-    console.info(group);
-  })
-
   return (
     <>
-      <IonTitle>
-        <h1>{board.boardName}</h1>
-      </IonTitle>
-      <div className='groupParentContainer'>
-        <IonContent className='groupContainer'>
+      <IonHeader>
+        <IonItem>
+          <IonTitle size='large'>
+          <h1>{board.boardName}</h1>
+          </IonTitle>
+          <BoardLogs showModal={showLogs} setShowModal={setShowLogs} />
+          {userBoard ? 
+            <BoardLeave showModal={showLeave} setShowModal={setShowLeave} />:
+            null
+          }
+          {userBoard && userBoard.isAdmin ?
+            (
+              <>
+                <BoardMember showModal={showMember} setShowModal={setShowMember} />
+                <BoardSettings showModal={showSettings} setShowModal={setShowSettings} />
+              </>
+            ):null
+          }
+        </IonItem>
+      </IonHeader>
+      <IonContent className='groupParentContainer'>
+        <IonTitle><h3>Description</h3></IonTitle>
+        <IonText className='ion-padding-start'>{board.boardDescription}</IonText>
+        <div className='groupContainer'>
           <DragDropContext onDragEnd={onDragEnd}>
-            {/* {
-              boardGroupUidsOrder.map((groupUid:string, groupIndex)=>{
-                return (
-                  <GroupItem key={nanoid()} groupUid={groupUid} groupIndex={groupIndex}/>
-                );
-              })
-            } */}
             {
               groups.map((group, groupIndex)=>{
                 return (
-                  <GroupItem key={nanoid()} group={group} groupIndex={groupIndex} />
+                  <GroupItem key={nanoid()} group={group} groupIndex={groupIndex.toString()} />
                 )
               })
             }
           </DragDropContext>
           <BoardCreateGroup />
-        </IonContent>
-      </div>
+        </div>
+      </IonContent>
     </>
   );
 };

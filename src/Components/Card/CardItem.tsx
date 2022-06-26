@@ -1,4 +1,4 @@
-import { IonCard, IonModal, IonTitle } from '@ionic/react';
+import { IonCard, IonItem, IonModal, IonTitle } from '@ionic/react';
 import { doc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -13,7 +13,6 @@ import { CardDetail } from './CardDetail';
 type props = {
   cardUid : string
   index : number
-  // ref : Ref<Draggable>
 }
 
 export const CardItem : React.FC<props> = ({cardUid, index}) => {
@@ -27,20 +26,6 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
   const {status: statusCard, data: resCard } = useFirestoreDocData(refCard, {
     idField: 'uid',
   });
-
-  if (statusCard == 'loading') {
-    return (
-      <>
-        <IonCard>
-          <IonTitle>loading...</IonTitle>
-        </IonCard>
-      </>
-    );
-  }
-
-
-  const card = resCard as TypeCard;
-
 
   const openDetail = ()=>{
     setShowDetail(true);
@@ -58,6 +43,22 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
   background-color: white;
   `;
 
+  if (statusCard == 'loading') {
+    return (
+      <>
+        <IonCard>
+          <IonTitle>loading...</IonTitle>
+        </IonCard>
+      </>
+    );
+  }
+
+  if(!resCard) return null;
+
+
+  const card = resCard as TypeCard;
+
+
   return (
     <Draggable draggableId={card.uid as string} index={index}>
       {(provided)=>{
@@ -67,7 +68,9 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
             {...provided.dragHandleProps}
           >
             <IonCard style={{margin: '0', padding: '8px'}} onClick={openDetail}>
-              <IonTitle>{card.cardTitle}</IonTitle>
+              <IonItem>
+                <IonTitle>{card.cardTitle}</IonTitle>
+              </IonItem>
             </IonCard>
             <IonModal isOpen={ showDetail } onWillDismiss={(data:any)=>{
               console.log(data);

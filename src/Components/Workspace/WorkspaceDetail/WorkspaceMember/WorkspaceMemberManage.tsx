@@ -3,16 +3,16 @@ import { collection } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
-import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeMember } from '../../../Model/model';
-import { useWorkspaceContext } from '../WorkspaceContext';
+import { useGlobalContext } from '../../../../context/ContextProvider';
+import { Tables, TypeMember } from '../../../../Model/model';
+import { useWorkspaceContext } from '../../WorkspaceContext';
 import { WorkspaceMemberItem } from './WorkspaceMemberItem';
 
 type props = {
 
 }
 
-export const WorkspaceMemberDelete : React.FC<props> = ({})=>{
+export const WorkspaceMemberManage : React.FC<props> = ({})=>{
   const {firestore, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
 
@@ -25,7 +25,6 @@ export const WorkspaceMemberDelete : React.FC<props> = ({})=>{
     return <IonListHeader>retrieving data...</IonListHeader>;
   }
 
-  console.info(resWorkspaceMembers);
   const workspaceMembers = resWorkspaceMembers as Array<TypeMember>;
 
   return (

@@ -28,11 +28,8 @@ export const JoinWorkspace : React.FC<props> = ({refWorkspace}) => {
       const docRef = refWorkspace;
       const path = getPath(docRef);
       path.push(Tables.Members);
-      console.info(path);
       // @ts-ignore
       const refMembers = collection(firestore, ...(path));
-      console.info(refMembers);
-      console.info(user.userUid);
       await addDoc(refMembers, {
         isAdmin: false,
         isOwner: false,
@@ -54,7 +51,7 @@ export const JoinWorkspace : React.FC<props> = ({refWorkspace}) => {
       history.push('/workspace/' + workspace.uid as string);
       setRefresh(true);
     } catch (e) {
-      console.info(e);
+      alert(e);
     }
   };
 

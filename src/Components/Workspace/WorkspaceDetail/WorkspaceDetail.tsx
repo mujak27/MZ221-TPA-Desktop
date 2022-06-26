@@ -1,9 +1,9 @@
 import { IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
 import React, { useState } from 'react';
 import { Redirect } from 'react-router';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { WorkspaceBoards } from './WorkspaceBoards';
-import { useWorkspaceContext } from './WorkspaceContext';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { WorkspaceBoards } from '../WorkspaceBoards';
+import { useWorkspaceContext } from '../WorkspaceContext';
 import { WorkspaceLeave } from './WorkspaceLeave';
 import { WorkspaceLogs } from './WorkspaceLogs';
 import { WorkspaceMember } from './WorkspaceMember/WorkspaceMember';
@@ -16,19 +16,14 @@ type props = {
 
 export const WorkspaceDetail : React.FC<props> = () => {
   const {setRefresh, history} = useGlobalContext();
-  const {workspace, currentUser} = useWorkspaceContext();
+  const {workspace, userWorkspace} = useWorkspaceContext();
   const [showSettings, setShowSettings] = useState(false);
-  const [showManageMember, setShowManageMember] = useState(false);
+  const [showMember, setShowMember] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showLeave, setShowLeave] = useState(false);
 
-  console.info(currentUser);
-
-  console.info(workspace);
-
   if(workspace == undefined){
     history.push('/workspace');
-    console.info('woww');
     setRefresh(true);
     return <Redirect to={'/workspace'} />
   }
@@ -42,12 +37,16 @@ export const WorkspaceDetail : React.FC<props> = () => {
               {workspace.workspaceName}
             </h2>
           </IonTitle>
-          <WorkspaceLeave showModal={showLeave} setShowModal={setShowLeave} />
           <WorkspaceLogs showModal={showLogs} setShowModal={setShowLogs} />
-          {currentUser.isAdmin ?
+          {
+            userWorkspace ?
+            <WorkspaceLeave showModal={showLeave} setShowModal={setShowLeave} /> :
+            null
+          }
+          {userWorkspace && userWorkspace.isAdmin ?
             (
               <>
-                <WorkspaceMember showModal={showManageMember} setShowModal={setShowManageMember} />
+                <WorkspaceMember showModal={showMember} setShowModal={setShowMember} />
                 <WorkspaceSettings showModal={showSettings} setShowModal={setShowSettings} />
               </>
             ):null

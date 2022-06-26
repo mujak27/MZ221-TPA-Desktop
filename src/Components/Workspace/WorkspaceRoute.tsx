@@ -3,8 +3,8 @@ import { IonReactRouter } from '@ionic/react-router';
 import React from 'react';
 import { Route } from 'react-router';
 import { BoardContext } from '../Board/BoardContext';
-import { BoardDetail } from '../Board/BoardDetail';
-import { WorkspaceDetail } from './WorkspaceDetail';
+import { BoardDetail } from '../Board/BoardDetail/BoardDetail';
+import { WorkspaceDetail } from './WorkspaceDetail/WorkspaceDetail';
 
 
 type props = {

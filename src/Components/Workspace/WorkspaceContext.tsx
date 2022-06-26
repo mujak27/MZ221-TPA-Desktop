@@ -7,8 +7,8 @@ import { Tables, TypeMember, TypeWorkspace, WorkspaceVisibility } from '../../Mo
 
 type TypeWorkspaceContext = {
   workspace : TypeWorkspace,
-  currentUser : TypeMember,
-  members : Array<TypeMember>
+  userWorkspace : TypeMember,
+  workspaceMembers : Array<TypeMember>
 }
 
 let workspaceContext = createContext<TypeWorkspaceContext>({
@@ -21,12 +21,12 @@ let workspaceContext = createContext<TypeWorkspaceContext>({
     workspaceDeleteRequest: [],
     workspaceLogs: [],
   } as TypeWorkspace,
-  currentUser: {
+  userWorkspace: {
     isAdmin: false,
     isOwner: false,
     userUid: '',
   } as TypeMember,
-  members : [],
+  workspaceMembers : [],
 });
 
 export const useWorkspaceContext = ()=>{
@@ -61,15 +61,15 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
   }
 
   if (!resWorkspace) {
-    return <div>inalid url or you do not have access</div>;
+    return <div>inalid url or you do not have access to the workspace</div>;
   }
 
   const workspace = resWorkspace as TypeWorkspace;
   const members = (resMembers as Array<TypeMember>);
-  const currentUser = members.filter((member)=>{
+  const userWorkspace = members.filter((member)=>{
     return member.userUid==(user.userUid as string)
   })[0];
-  workspaceContext = createContext<TypeWorkspaceContext>({workspace, currentUser, members });
+  workspaceContext = createContext<TypeWorkspaceContext>({workspace, userWorkspace: userWorkspace, workspaceMembers: members });
 
   return (
     <>
