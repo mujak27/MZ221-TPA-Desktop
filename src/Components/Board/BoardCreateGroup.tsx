@@ -11,8 +11,7 @@ type props = {
 }
 
 export const BoardCreateGroup : React.FC<props> = ({}) => {
-  const globalContext = useGlobalContext();
-  const firestore = globalContext.firestore;
+  const {firestore, setRefresh} = useGlobalContext();
   const [showCreate, setShowCreate] = useState(false);
   const [groupName, setGroupName] = useState('');
   const {workspace} = useWorkspaceContext();
@@ -35,7 +34,8 @@ export const BoardCreateGroup : React.FC<props> = ({}) => {
         ],
       } as TypeBoard);
       await batch.commit();
-      setShowCreate(false);
+      // setShowCreate(false);
+      setRefresh(true);
     } catch (exception) {
       alert(exception);
     }

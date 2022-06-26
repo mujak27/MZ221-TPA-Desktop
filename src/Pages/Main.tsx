@@ -7,7 +7,8 @@ import { Navbar } from '../Components/Navigations/Navbar';
 import { SideNav } from '../Components/Navigations/SideNav';
 import { ContextProvider } from '../context/ContextProvider';
 import { Home } from './Home';
-import { Profile } from './Profile';
+import { Join } from './Join';
+import { Profile } from './User';
 import { Workspace } from './Workspace';
 
 
@@ -41,9 +42,9 @@ const Main = () => {
           <IonReactRouter>
             <IonRouterOutlet id='main' className='ion-margin ion-padding'>
               <Route path='/profile/:profileId' component={Profile} exact={true} />
+              <Route path='/join/:joinId' component={Join} exact={true}/>
               <Route path='/workspace' component={Workspace} />
-              <Route path='/home' component={Home} exact={true} />
-              <Redirect exact from='/' to='/home' />
+              <Route component={Home} exact={true} />
             </IonRouterOutlet>
           </IonReactRouter>
         </IonSplitPane>

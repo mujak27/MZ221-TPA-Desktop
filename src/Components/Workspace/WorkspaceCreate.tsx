@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonModal } from '@ionic/react';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { close } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
@@ -22,8 +22,10 @@ export const WorkspaceCreate : React.FC<props> = ({}) => {
         workspaceName: workspaceName,
         workspaceDescription: workspaceDescription,
         workspaceVisibility: WorkspaceVisibility.Workspace,
-        workspaceCreatedDate: serverTimestamp(),
+        workspaceCreatedDate: (new Date).getTime(),
         workspaceMembers: [userUid],
+        workspaceDeleteRequest: [],
+        workspaceLogs: [],
       } as TypeWorkspace);
       await addDoc(collection(firestore, Tables.Workspaces, refWorkspace.id, Tables.Members), {
         userUid: userUid,

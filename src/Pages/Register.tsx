@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Redirect, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { useAuth, useFirestore, useSigninCheck } from 'reactfire';
-import { Tables, TypeUser, UserNotif } from '../Model/model';
+import { Tables, TypeUser, enumNotifFreq } from '../Model/model';
 
 const _Register = (props:any) => {
   const firestore = useFirestore();
@@ -32,7 +32,7 @@ const _Register = (props:any) => {
         userUid: auth.currentUser?.uid as string,
         userName: name,
         userEmail: email,
-        userNotifFreq: UserNotif.instant,
+        userNotifFreq: enumNotifFreq.Instant,
         userInvitation: [],
         userNotifications: [],
       } as TypeUser);

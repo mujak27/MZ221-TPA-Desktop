@@ -6,19 +6,18 @@ import { Link } from 'react-router-dom';
 import { useGlobalContext } from '../../context/ContextProvider';
 
 const Navbar = ({} : any)=> {
-  const globalContext = useGlobalContext();
-  console.info(globalContext);
-  const user = globalContext.user;
-  const auth = useGlobalContext().auth;
+  const {user, auth}= useGlobalContext();
   const onSignOut = async () => {
     await signOut(auth);
   };
 
-
   return (
     <IonToolbar className=''>
-      {/* <IonButton routerLink={`/home`}>
+      {/* <IonButton routerDirection='back'>
+        <IonIcon icon={chevronBack} />
       </IonButton> */}
+      {/* <IonBackButton>
+      </IonBackButton> */}
       <Link to='/home' className='ion-align-self-center'>
         <IonTitle>CHello</IonTitle>
       </Link>

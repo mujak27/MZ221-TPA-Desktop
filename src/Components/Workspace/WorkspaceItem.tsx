@@ -34,7 +34,6 @@ export const WorkspaceItem : React.FC<props> = ({workspaceUid}) => {
 
 
   return (
-
     <IonCard key={nanoid()} onClick={onClickHandle}>
       <IonCardHeader>
         <IonCardTitle>{workspace.workspaceName}</IonCardTitle>

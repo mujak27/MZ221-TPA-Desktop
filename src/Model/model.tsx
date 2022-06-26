@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { FieldValue } from 'firebase/firestore';
+import { DocumentReference, FieldValue } from 'firebase/firestore';
 
 export enum Tables {
   Workspaces = 'Workspaces',
@@ -8,19 +8,20 @@ export enum Tables {
   Cards = 'Cards',
   Members = 'Members',
   Users = 'Users',
+  InvitationLink = 'InvitationLink',
 }
 
 export enum Key {
   docUid = '__name__'
 }
 
-export enum UserNotif {
-  instant = 'instant',
-  periodically = 'periodically',
-  never = 'never'
+export enum enumNotifFreq {
+  Instant = 'Instant',
+  Periodically = 'Periodically',
+  Never = 'Never'
 }
 
-export enum ItemType {
+export enum EnumItemType {
   Workspace = 'Workspace',
   Board = 'Board',
 }
@@ -50,19 +51,20 @@ export enum KeyUser {
   userInvitation = 'userInvitation',
 }
 
-export type UserInvitation = {
+export type TypeInvitation = {
   itemUid : string,
-  invitationType : ItemType,
-  invitationDeadline : FieldValue,
+  itemRef : DocumentReference,
+  invitationType : EnumItemType,
 }
 
 export type TypeUser = {
+  uid? : string,
   userUid : string,
   userName : string,
   userEmail : string,
-  userNotifFreq : UserNotif,
+  userNotifFreq : enumNotifFreq,
   userNotifications : Array<String>
-  userInvitation : Array<UserInvitation>
+  userInvitation : Array<TypeInvitation>
 }
 
 export enum KeyMember {
@@ -72,6 +74,7 @@ export enum KeyMember {
 }
 
 export type TypeMember = {
+  uid? : string,
   userUid : string,
   isAdmin : boolean,
   isOwner : boolean,
@@ -83,8 +86,8 @@ export enum KeyChecklist {
 }
 
 export type TypeCheckList = {
-  checklistDone : boolean,
-  checklistName : string,
+  checklistDone : boolean
+  checklistName : string
 }
 
 export enum KeyCard {
@@ -96,10 +99,10 @@ export enum KeyCard {
 
 export type TypeCard = {
   uid? : string
-  cardTitle : string,
-  cardDescription : string,
-  cardCreatedDate : FieldValue,
-  cardChecklists : Array<TypeCheckList>,
+  cardTitle : string
+  cardDescription : string
+  cardCreatedDate : FieldValue
+  cardChecklists : Array<TypeCheckList>
 };
 
 export enum KeyGroup {
@@ -126,13 +129,13 @@ export enum KeyBoard {
 }
 
 export type TypeBoard = {
-  uid? : string,
-  boardName : string,
-  boardDescription : string,
-  boardStatus : BoardStatus,
+  uid? : string
+  boardName : string
+  boardDescription : string
+  boardStatus : BoardStatus
   boardVisibility : BoardVisibility
-  boardCreatedDate : FieldValue,
-  boardMembers : Array<string>,
+  boardCreatedDate : FieldValue
+  boardMembers : Array<string>
   boardGroupUids : Array<string>
 }
 
@@ -143,12 +146,22 @@ export enum KeyWorkspace {
   workspaceMembers = 'workspaceMembers',
   workspaceDescription = 'workspaceDescription',
 }
-
+// 
 export type TypeWorkspace = {
+  uid? : string
+  workspaceName : string
+  workspaceDescription : string
+  workspaceVisibility : WorkspaceVisibility
+  workspaceCreatedDate : number
+  workspaceMembers : Array<string>
+  workspaceDeleteRequest : Array<string>
+  workspaceLogs : Array<string>
+}
+
+
+export type TypeInvitationLink = {
   uid? : string,
-  workspaceName : string,
-  workspaceDescription : string,
-  workspaceVisibility : WorkspaceVisibility,
-  workspaceCreatedDate : FieldValue,
-  workspaceMembers : Array<string>,
+  InvitationType : EnumItemType,
+  refItem : DocumentReference,
+  InvitationExpired : number,
 }

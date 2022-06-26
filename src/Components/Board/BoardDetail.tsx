@@ -3,6 +3,7 @@ import { doc, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { Redirect } from 'react-router';
 import { useGlobalContext } from '../../context/ContextProvider';
 import { Tables, TypeGroup } from '../../Model/model';
 import { GroupItem } from '../Group/GroupItem';
@@ -15,7 +16,7 @@ type props = {
 }
 
 export const BoardDetail : React.FC<props> = ({}) => {
-  const firestore = useGlobalContext().firestore;
+  const {firestore, history, setRefresh} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
   const {groups: groupContext } = useBoardContext();
@@ -30,6 +31,13 @@ export const BoardDetail : React.FC<props> = ({}) => {
 
   useEffect(()=>{
   }, [groups]);
+
+  if(board == undefined){
+    history.push('/workspace');
+    console.info('woww');
+    setRefresh(true);
+    return <Redirect to={'/workspace' + workspace.uid as string} />
+  }
 
   const onDragEnd = async (result : DropResult)=>{
     const {destination, source, draggableId} = result;
@@ -98,6 +106,10 @@ export const BoardDetail : React.FC<props> = ({}) => {
     }
   };
 
+  groups.forEach((group)=>{
+    console.info(group);
+  })
+
   return (
     <>
       <IonTitle>
@@ -106,11 +118,18 @@ export const BoardDetail : React.FC<props> = ({}) => {
       <div className='groupParentContainer'>
         <IonContent className='groupContainer'>
           <DragDropContext onDragEnd={onDragEnd}>
-            {
+            {/* {
               boardGroupUidsOrder.map((groupUid:string, groupIndex)=>{
                 return (
                   <GroupItem key={nanoid()} groupUid={groupUid} groupIndex={groupIndex}/>
                 );
+              })
+            } */}
+            {
+              groups.map((group, groupIndex)=>{
+                return (
+                  <GroupItem key={nanoid()} group={group} groupIndex={groupIndex} />
+                )
               })
             }
           </DragDropContext>

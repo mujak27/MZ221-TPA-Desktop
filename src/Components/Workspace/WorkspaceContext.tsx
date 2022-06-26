@@ -1,12 +1,14 @@
-import { doc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, query } from 'firebase/firestore';
 import React, { createContext, useContext } from 'react';
 import { useParams } from 'react-router';
-import { useFirestoreDocData } from 'reactfire';
+import { useFirestoreCollectionData, useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
+import { Tables, TypeMember, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
 
 type TypeWorkspaceContext = {
   workspace : TypeWorkspace,
+  currentUser : TypeMember,
+  members : Array<TypeMember>
 }
 
 let workspaceContext = createContext<TypeWorkspaceContext>({
@@ -15,8 +17,16 @@ let workspaceContext = createContext<TypeWorkspaceContext>({
     workspaceDescription: '',
     workspaceMembers: [],
     workspaceVisibility: WorkspaceVisibility.Workspace,
-    workspaceCreatedDate: serverTimestamp(),
-  },
+    workspaceCreatedDate: 0,
+    workspaceDeleteRequest: [],
+    workspaceLogs: [],
+  } as TypeWorkspace,
+  currentUser: {
+    isAdmin: false,
+    isOwner: false,
+    userUid: '',
+  } as TypeMember,
+  members : [],
 });
 
 export const useWorkspaceContext = ()=>{
@@ -29,8 +39,7 @@ type props = {
 }
 
 export const WorkspaceContext : React.FC<props> = ({children}) => {
-  const globalContext = useGlobalContext();
-  const firestore = globalContext.firestore;
+  const {firestore, user} = useGlobalContext();
 
   const {workspaceUid} = useParams() as {workspaceUid : string};
 
@@ -39,8 +48,15 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
     idField: 'uid',
   });
 
+  const refMember = collection(firestore, Tables.Workspaces, workspaceUid, Tables.Members);
+  const {status: statusMember, data: resMembers} = useFirestoreCollectionData(query(
+      refMember,
+  ), {
+    idField: 'uid'
+  });
 
-  if (statusWorkspace === 'loading') {
+
+  if (statusWorkspace === 'loading' || statusMember === 'loading') {
     return <div>checking authorization...</div>;
   }
 
@@ -49,7 +65,11 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
   }
 
   const workspace = resWorkspace as TypeWorkspace;
-  workspaceContext = createContext<TypeWorkspaceContext>({workspace});
+  const members = (resMembers as Array<TypeMember>);
+  const currentUser = members.filter((member)=>{
+    return member.userUid==(user.userUid as string)
+  })[0];
+  workspaceContext = createContext<TypeWorkspaceContext>({workspace, currentUser, members });
 
   return (
     <>

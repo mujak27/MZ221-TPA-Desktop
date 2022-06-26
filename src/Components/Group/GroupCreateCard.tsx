@@ -11,8 +11,7 @@ type props = {
 }
 
 export const GroupCreateCard : React.FC<props> = ({group}) => {
-  const globalContext = useGlobalContext();
-  const firestore = globalContext.firestore;
+  const {firestore, setRefresh} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
   const [cardTitle, setCardTitle] = useState('');
@@ -36,8 +35,9 @@ export const GroupCreateCard : React.FC<props> = ({group}) => {
         ],
       } as TypeGroup);
       await batch.commit();
+      setRefresh(true);
     } catch (exception) {
-      console.log(exception);
+      console.info(exception);
     }
   };
 

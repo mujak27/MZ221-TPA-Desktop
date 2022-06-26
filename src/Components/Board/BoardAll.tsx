@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables } from '../../Model/model';
+import { BoardVisibility, KeyBoard, Tables } from '../../Model/model';
 
 type props = {
 
@@ -14,12 +14,10 @@ export const BoardAll:React.FC<props> = () : React.ReactElement=>{
   const firestore = globalContext.firestore;
   const userUid = globalContext.user.userUid;
 
-  const boardRef = collection(firestore, Tables.Boards);
-  const {status: boardsStatus, data: boards} = useFirestoreCollectionData(query(boardRef, ...[
-    where('boardMembers', 'array-contains-any', [
-      {memberIsAdmin: true, memberUserUid: userUid},
-      {memberIsAdmin: false, memberUserUid: userUid},
-    ]),
+  const refBoard = collection(firestore, Tables.Boards);
+  const {status: boardsStatus, data: boards} = useFirestoreCollectionData(query(refBoard, ...[
+    where(KeyBoard.boardMembers, '==', userUid),
+    where(KeyBoard.boardVisibility,  '==', BoardVisibility.Board)
   ]), {
     idField: 'uid',
   });

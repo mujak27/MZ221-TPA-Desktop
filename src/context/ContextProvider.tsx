@@ -5,7 +5,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 import { firebaseConfig } from '../Model/firebase';
-import { KeyUser, Tables, TypeUser, UserNotif } from '../Model/model';
+import { KeyUser, Tables, TypeUser, enumNotifFreq } from '../Model/model';
 
 type typeGlobalContext = {
   auth : Auth,
@@ -23,7 +23,7 @@ let globalContext = createContext<typeGlobalContext>({
     userEmail: '',
     userInvitation: [],
     userName: '',
-    userNotifFreq: UserNotif.instant,
+    userNotifFreq: enumNotifFreq.Instant,
     userNotifications: [],
   },
   firestore: getFirestore(initializeApp(firebaseConfig)),
@@ -56,7 +56,10 @@ export const ContextProvider = ({children }: props)=>{
   if (statusUser === 'loading') {
     return <div>fetching user data...</div>;
   }
+
+  console.info(resUser);
   const user = resUser[0] as TypeUser;
+  console.info(user);
   globalContext = createContext<typeGlobalContext>({
     auth,
     user,

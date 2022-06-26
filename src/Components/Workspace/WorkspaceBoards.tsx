@@ -1,4 +1,4 @@
-import { IonItem, IonTitle } from '@ionic/react';
+import { IonCol, IonGrid, IonItem, IonRow, IonTitle } from '@ionic/react';
 import { collection, query, where } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React from 'react';
@@ -37,6 +37,33 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
     );
   }
 
+
+  const ItemInRow = 6;
+  const boardJsx = boards.map((board)=>{
+    return (
+      <IonCol size={`${12/ItemInRow}`} key={nanoid()}>
+        <BoardItem board={board} />
+      </IonCol>
+    );
+  });
+
+  console.info('========')
+  const boardJsxChunkGenerator = ()=>{
+    const source = boardJsx;
+    const res : Array<JSX.Element> = [];
+    for(let i=0; i < source.length; i+=ItemInRow){
+      const chunk = source.slice(i, i+ItemInRow);
+      res.push((
+        <IonRow>
+          {(chunk)}
+        </IonRow>
+      ))
+    }
+    return res;
+  }
+  const boardJsxChunk = boardJsxChunkGenerator();
+
+
   return (
     <div>
       <IonItem>
@@ -47,13 +74,13 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
         </IonTitle>
       </IonItem>
       <WorkspaceCreateBoard/>
-      <div className='flexContainer'>
+      {/* <div className='flexContainer'> */}
+      <IonGrid>
         {
-          boards.map((board)=>{
-            return (<BoardItem board={board} key={nanoid()}/>);
-          })
+          boardJsxChunk
         }
-      </div>
+      </IonGrid>
+      {/* </div> */}
     </div>
   );
 };
