@@ -19,6 +19,7 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
   const [title, setTitle] = useState(card.cardTitle);
   const [description, setDescription] = useState(card.cardDescription);
   const [checklists, setChecklists] = useState(card.cardChecklists);
+  const [date, setDate] = useState(card.cardDate);
   const [watch, setWatch] = useState(card.cardWatchers.includes(user.uid as string));
   const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
@@ -27,6 +28,10 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
     console.log('checklists changed');
     console.log(checklists);
   }, [checklists]);
+
+  console.info(date);
+  console.info(new Date(date));
+  console.info((new Date(date)).toISOString().substring(0,10));
 
   const onSaveHandle = async () => {
     try {
@@ -39,7 +44,7 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
           if(cardWatcher == user.uid as string) return false;
           return true;
         })
-      }
+  }
       const batch = writeBatch(firestore);
       const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string);
       batch.update(cardRef, {
@@ -47,6 +52,7 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
         cardDescription: description,
         cardChecklists: checklists,
         cardWatchers: cardWatchers,
+        cardDate : date,
       } as TypeCard);
       await batch.commit();
       exitHandle();
@@ -92,6 +98,16 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
             value={description}
             onIonChange={(e)=>setDescription(e.detail.value as string)} />
         </IonItem>
+        <IonItem>
+          <IonLabel position="fixed">Date</IonLabel>
+          <IonInput
+            type='date'
+            placeholder="Description"
+            value={(new Date(date)).toISOString().substring(0,10)}
+            onIonChange={(e)=>setDate(new Date((e.detail.value as string)).getTime())} 
+            />
+        </IonItem>
+
         <IonItem>
           <IonCheckbox checked={watch} onIonChange={(e)=>{setWatch(e.detail.checked)}} />
           <IonLabel className='ion-padding-horizontal'>watch this card</IonLabel>

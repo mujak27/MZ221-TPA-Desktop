@@ -1,28 +1,35 @@
 import { IonButton, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonTitle } from '@ionic/react';
 import { doc, writeBatch } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
 import { enumNotifFreq, Tables, TypeUser } from '../../Model/model';
 
 const Profile = () => {
-  const {user, firestore}= useGlobalContext();
+  const {user, firestore, storage}= useGlobalContext();
   const [name, setName] = useState(user.userName);
   const [bio, setBio] = useState(user.userBio);
   const [notifFreq, setNotifFreq] = useState(user.userNotifFreq);
-  const [imageFile, setImageFile] = useState<Object | null>();
+  const [imageFile, setImageFile] = useState<File>();
   // const [imageLink, setImageLink] = useState('');
 
   const onSave = async ()=>{
-    // const refImage = ref(storage, `users/${user.uid as string}/${imageFile?.name}`)
-    // uploadBytesResumable(refImage, imageFile)
-    const refUser = doc(firestore, Tables.Users, user.uid as string);
     const batch = writeBatch(firestore);
+    const refStorage = ref(storage, `${user.userUid}/${(imageFile as File).name}`)
+    const metadata = {contentType : 'profile pic'}
+
+    await uploadBytes(refStorage, imageFile as File, metadata);
+    const url = await getDownloadURL(refStorage);
+    console.info(url);
+      
+      
+    const refUser = doc(firestore, Tables.Users, user.uid as string);
     batch.update(refUser, {
       userName : name,
       userBio : bio,
       userNotifFreq : notifFreq,
-      // userImageLink : im
+      userImageLink : url
     } as TypeUser);
     await batch.commit();
 
@@ -80,9 +87,8 @@ const Profile = () => {
           type='file'
           accept='.jpg,.jpeg,.png'
           onChange={(e)=>{
-            console.info((e.target.files as FileList)[0]);
-            setImageFile((e.target.files as FileList)[0]);
-            console.info(imageFile)
+            setImageFile((e.target.files as FileList)[0] as File);
+            console.info(imageFile);
           }
           }
         />

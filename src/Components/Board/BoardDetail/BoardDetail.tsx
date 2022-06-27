@@ -1,4 +1,4 @@
-import { IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
+import { IonButton, IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
 import { doc, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import '../../style.css';
 import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
 import { useBoardContext } from '../BoardContext';
 import { BoardCreateGroup } from '../BoardCreateGroup';
+import { BoardCalendar } from './BoardCalendar';
 import { BoardLeave } from './BoardLeave';
 import { BoardLogs } from './BoardLogs';
 import { BoardMember } from './BoardMember/BoardMember';
@@ -25,6 +26,12 @@ export const BoardDetail : React.FC<props> = ({}) => {
   const {board, userBoard} = useBoardContext();
   const {groups: groupContext } = useBoardContext();
 
+  enum tabs {
+    Kanban = 'Kanban',
+    Calendar = 'Calendar',
+  }
+
+  const [tab, setTab] = useState(tabs.Kanban);
   const [showMember, setShowMember] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -139,18 +146,28 @@ export const BoardDetail : React.FC<props> = ({}) => {
       <IonContent className='groupParentContainer'>
         <IonTitle><h3>Description</h3></IonTitle>
         <IonText className='ion-padding-start'>{board.boardDescription}</IonText>
-        <div className='groupContainer'>
-          <DragDropContext onDragEnd={onDragEnd}>
-            {
-              groups.map((group, groupIndex)=>{
-                return (
-                  <GroupItem key={nanoid()} group={group} groupIndex={groupIndex.toString()} />
-                )
-              })
-            }
-          </DragDropContext>
-          <BoardCreateGroup />
-        </div>
+        <IonItem>
+          <IonTitle>View mode : </IonTitle>
+          <IonButton onClick={()=>setTab(tabs.Kanban)}>kanban</IonButton>
+          <IonButton onClick={()=>setTab(tabs.Calendar)}>calendar</IonButton>
+        </IonItem>
+        {
+          tab == tabs.Kanban ?
+          (
+            <div className='groupContainer'>
+              <DragDropContext onDragEnd={onDragEnd}>
+                {
+                  groups.map((group, groupIndex)=>{
+                    return (
+                      <GroupItem key={nanoid()} group={group} groupIndex={groupIndex.toString()} />
+                    )
+                  })
+                }
+              </DragDropContext>
+              <BoardCreateGroup />
+            </div>
+          ) : (<BoardCalendar/>)
+        }
       </IonContent>
     </>
   );

@@ -132,6 +132,7 @@ export type TypeCard = {
   cardCreatedDate : FieldValue
   cardChecklists : Array<TypeCheckList>
   cardWatchers : Array<string>
+  cardDate : number
 };
 
 export enum KeyGroup {

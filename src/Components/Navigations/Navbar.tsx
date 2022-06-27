@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonIcon, IonLabel, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonIcon, IonImg, IonLabel, IonTitle, IonToolbar } from '@ionic/react';
 import { signOut } from 'firebase/auth';
 import { ellipsisHorizontalOutline, logOutOutline, personCircle } from 'ionicons/icons';
 import React from 'react';
@@ -11,20 +11,21 @@ const Navbar = ({} : any)=> {
     await signOut(auth);
   };
 
+  console.info(user.userImageLink);
+
   return (
     <IonToolbar className=''>
-      {/* <IonButton routerDirection='back'>
-        <IonIcon icon={chevronBack} />
-      </IonButton> */}
-      {/* <IonBackButton>
-      </IonBackButton> */}
       <Link to='/home' className='ion-align-self-center'>
         <IonTitle>CHello</IonTitle>
       </Link>
       <IonButtons slot="secondary">
         <IonLabel>{user.userName}</IonLabel>
         <IonButton color="primary" routerLink={`/profile/${user.userUid}`}>
-          <IonIcon slot="icon-only" icon={personCircle} />
+          {
+            user.userImageLink && user.userImageLink != '' ?
+            (<IonImg style={{height:'50px', width:'50px', borderRadius:'100px'}} src={user.userImageLink} />) :
+            <IonIcon slot="icon-only" icon={personCircle} />
+          }
         </IonButton>
       </IonButtons>
       <IonButtons slot="primary">
