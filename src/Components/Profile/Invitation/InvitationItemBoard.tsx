@@ -22,7 +22,7 @@ export const InvitationItemBoard : React.FC<props> = ({invitation}) => {
   if (statusBoard === 'loading') {
     return <>loading...</>;
   }
-  if (resBoard === undefined) return null;
+  if (resBoard === undefined) return <>board undefined</>;
 
   const board = resBoard as TypeBoard;
 
@@ -55,7 +55,7 @@ export const InvitationItemBoard : React.FC<props> = ({invitation}) => {
       await addDoc(refMembers, {
         isAdmin: false,
         isOwner: false,
-        userUid: user.userUid as string,
+        userUid: user.userUid,
       } as TypeMember);
       const batch = writeBatch(firestore);
       batch.update(docRef, {

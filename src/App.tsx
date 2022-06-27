@@ -22,11 +22,12 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/typography.css';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import React from 'react';
 import {
   Route,
 } from 'react-router-dom';
-import { AuthProvider, FirestoreProvider, useFirebaseApp } from 'reactfire';
+import { AuthProvider, FirestoreProvider, StorageProvider, useFirebaseApp } from 'reactfire';
 /* Global CSS */
 import './global.css';
 import { Login } from './Pages/Login';
@@ -40,15 +41,17 @@ const App = () => {
   return (
     <FirestoreProvider sdk={getFirestore(useFirebaseApp())}>
       <AuthProvider sdk={getAuth(useFirebaseApp())}>
-        <IonApp>
-          <IonReactRouter>
-            <IonRouterOutlet>
-              <Route path="/login" component={Login} exact={true} />
-              <Route path="/register" component={Register} exact={true}/>
-              <Route component={Main} />
-            </IonRouterOutlet>
-          </IonReactRouter>
-        </IonApp>
+        <StorageProvider sdk={getStorage(useFirebaseApp())}>
+          <IonApp>
+            <IonReactRouter>
+              <IonRouterOutlet>
+                <Route path="/login" component={Login} exact={true} />
+                <Route path="/register" component={Register} exact={true}/>
+                <Route component={Main} />
+              </IonRouterOutlet>
+            </IonReactRouter>
+          </IonApp>
+        </StorageProvider>
       </AuthProvider >
     </FirestoreProvider>
   );

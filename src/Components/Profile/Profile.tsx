@@ -1,16 +1,30 @@
 import { IonButton, IonInput, IonItem, IonLabel, IonSelect, IonSelectOption, IonTitle } from '@ionic/react';
+import { doc, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { enumNotifFreq } from '../../Model/model';
+import { enumNotifFreq, Tables, TypeUser } from '../../Model/model';
 
 const Profile = () => {
-  const {user}= useGlobalContext();
+  const {user, firestore}= useGlobalContext();
   const [name, setName] = useState(user.userName);
   const [bio, setBio] = useState(user.userBio);
   const [notifFreq, setNotifFreq] = useState(user.userNotifFreq);
+  const [imageFile, setImageFile] = useState<Object | null>();
+  // const [imageLink, setImageLink] = useState('');
 
-  const onSave = ()=>{
+  const onSave = async ()=>{
+    // const refImage = ref(storage, `users/${user.uid as string}/${imageFile?.name}`)
+    // uploadBytesResumable(refImage, imageFile)
+    const refUser = doc(firestore, Tables.Users, user.uid as string);
+    const batch = writeBatch(firestore);
+    batch.update(refUser, {
+      userName : name,
+      userBio : bio,
+      userNotifFreq : notifFreq,
+      // userImageLink : im
+    } as TypeUser);
+    await batch.commit();
 
   }
 
@@ -64,6 +78,13 @@ const Profile = () => {
         </IonLabel>
         <input
           type='file'
+          accept='.jpg,.jpeg,.png'
+          onChange={(e)=>{
+            console.info((e.target.files as FileList)[0]);
+            setImageFile((e.target.files as FileList)[0]);
+            console.info(imageFile)
+          }
+          }
         />
       </IonItem>
       <IonButton onClick={onSave}>save</IonButton>

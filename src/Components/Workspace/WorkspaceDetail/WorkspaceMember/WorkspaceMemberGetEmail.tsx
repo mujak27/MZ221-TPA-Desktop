@@ -32,7 +32,7 @@ export const WorkspaceMemberGetEmail : React.FC<props> = ({userEmail, itemUid, i
   }
 
   const user = (resUsers as Array<TypeUser>)[0];
-  const invited = workspace.workspaceMembers.includes(user.userUid as string);
+  const invited = workspace.workspaceMembers.includes(user.uid as string);
 
   const onInviteHandle = async () => {
     const batch = writeBatch(firestore);

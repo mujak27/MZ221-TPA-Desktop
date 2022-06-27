@@ -24,6 +24,7 @@ export const GroupCreateCard : React.FC<props> = ({group}) => {
         cardDescription: '',
         cardCreatedDate: serverTimestamp(),
         cardChecklists: [],
+        cardWatchers: [],
       } as TypeCard);
 
       const batch = writeBatch(firestore);

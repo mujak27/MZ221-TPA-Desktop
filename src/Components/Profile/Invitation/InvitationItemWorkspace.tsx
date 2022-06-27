@@ -57,7 +57,7 @@ export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
       await addDoc(refMembers, {
         isAdmin: false,
         isOwner: false,
-        userUid: user.userUid as string,
+        userUid: user.userUid,
       } as TypeMember);
       const batch = writeBatch(firestore);
       batch.update(docRef, {

@@ -25,6 +25,9 @@ export const JoinWorkspace : React.FC<props> = ({refWorkspace}) => {
 
   const onJoinHandle = async ()=>{
     try {
+      console.info('join11');
+      console.info(user);
+      console.info(user.userUid);
       const docRef = refWorkspace;
       const path = getPath(docRef);
       path.push(Tables.Members);
@@ -33,7 +36,7 @@ export const JoinWorkspace : React.FC<props> = ({refWorkspace}) => {
       await addDoc(refMembers, {
         isAdmin: false,
         isOwner: false,
-        userUid: user.userUid as string,
+        userUid: user.userUid,
       } as TypeMember);
       const batch = writeBatch(firestore);
       batch.update(docRef, {

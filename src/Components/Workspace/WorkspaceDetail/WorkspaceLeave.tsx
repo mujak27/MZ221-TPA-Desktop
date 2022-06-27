@@ -16,8 +16,13 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
   const {workspace, userWorkspace: currentUser, workspaceMembers: members} = useWorkspaceContext();
   
   const onLeave = async ()=>{
-    const newMemberUids = Array.from(workspace.workspaceMembers);
-    newMemberUids.filter((memberUid)=>{
+    console.info('my uid');
+    console.info(user.userUid);
+    let newMemberUids = Array.from(workspace.workspaceMembers);
+    newMemberUids = newMemberUids.filter((memberUid)=>{
+      console.info('compare')
+      console.info('compare' + memberUid + ' - ', user.userUid);
+      console.info(memberUid == user.userUid);
       if(memberUid == user.userUid) return false;
       return true;
     });
@@ -26,16 +31,19 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
       alert('leave and deleted');
       return;
     }
+    console.info('member besides curr')
+    console.info(newMemberUids);
 
     let memberNotAdmin = Array.from(members);
     memberNotAdmin = memberNotAdmin.filter((member)=>{
       return !((member.userUid == user.userUid) || member.isAdmin)
     })
+    console.info('member besides me not admin');
+    console.info(memberNotAdmin);
     if(memberNotAdmin.length > 0){
       alert('you are the last admin!, set anyone as admin or just delete the workspace');
       return;
     }
-
 
     const refMember = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Members, currentUser.uid as string);
     deleteDoc(refMember);

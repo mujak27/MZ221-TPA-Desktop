@@ -23,12 +23,13 @@ export const WorkspaceMemberItem : React.FC<props> = ({member, userUid})=>{
   ), {
     idField: 'uid',
   });
-
+  
   if (statusUsers === 'loading') {
     return <IonItem>retrieving data...</IonItem>;
   }
 
   const user = (resUsers as Array<TypeUser>)[0];
+    console.info(resUsers);
 
   const onKickHandle = async ()=>{
     try {

@@ -9,6 +9,8 @@ export enum Tables {
   Members = 'Members',
   Users = 'Users',
   InvitationLink = 'InvitationLink',
+  Comments = 'Comments',
+  Notifications = 'Notifications',
 }
 
 export enum Key {
@@ -47,7 +49,6 @@ export enum KeyUser {
   userName = 'userName',
   userEmail = 'userEmail',
   userNotifFreq = 'userNotifFreq',
-  userNotifications = 'userNotifications',
   userInvitation = 'userInvitation',
 }
 
@@ -57,10 +58,15 @@ export type TypeInvitation = {
   invitationType : EnumItemType,
 }
 
+export type TypeNotification = {
+  notificationValue : string,
+}
+
 export type TypeUser = {
   uid? : string,
-  userUid : string,
+  userUid : string
   userName : string,
+  userImageLink : string,
   userBio : string,
   userEmail : string,
   userNotifFreq : enumNotifFreq,
@@ -91,6 +97,25 @@ export type TypeCheckList = {
   checklistName : string
 }
 
+export type TypeCommentReply = {
+  userUid : string,
+  replyValue : string,
+}
+
+export type TypeComment = {
+  uid? : string,
+  commentOwnerUid : string,
+  userUids : Array<string>, 
+  commentValue : string,
+  commentReplies : Array<TypeCommentReply>
+  commentMentions : Array<string>
+}
+
+// userUids -> yg reply juga masuk ke sini
+// comment
+// commentReplies -> array string
+// userMention array string 
+
 export enum KeyCard {
   cardTitle = 'cardTitle',
   cardDescription = 'cardDescription',
@@ -98,12 +123,14 @@ export enum KeyCard {
   cardChecklists = 'cardChecklists',
 }
 
+
 export type TypeCard = {
   uid? : string
   cardTitle : string
   cardDescription : string
   cardCreatedDate : FieldValue
   cardChecklists : Array<TypeCheckList>
+  cardWatchers : Array<string>
 };
 
 export enum KeyGroup {
@@ -125,7 +152,7 @@ export enum KeyBoard {
   boardDescription = 'boardDescription',
   boardStatus = 'boardStatus',
   boardVisibility = 'boardVisibility',
-  boardCreatedDate = 'boardCreatedDate',
+boardCreatedDate = 'boardCreatedDate',
   boardMembers = 'boardMembers',
 }
 

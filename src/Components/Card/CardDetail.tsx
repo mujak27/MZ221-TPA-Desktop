@@ -1,4 +1,4 @@
-import { IonButton, IonContent, IonIcon, IonInput, IonItem, IonLabel } from '@ionic/react';
+import { IonButton, IonCheckbox, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonTitle } from '@ionic/react';
 import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { close } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -7,6 +7,7 @@ import { Tables, TypeCard } from '../../Model/model';
 import { useBoardContext } from '../Board/BoardContext';
 import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 import { CardChecklists } from './CardChecklists';
+import { CardComments } from './CardComment';
 
 type props = {
   card : TypeCard
@@ -14,10 +15,11 @@ type props = {
 }
 
 export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
-  const {firestore, setRefresh} = useGlobalContext();
+  const {firestore, user, setRefresh} = useGlobalContext();
   const [title, setTitle] = useState(card.cardTitle);
   const [description, setDescription] = useState(card.cardDescription);
   const [checklists, setChecklists] = useState(card.cardChecklists);
+  const [watch, setWatch] = useState(card.cardWatchers.includes(user.uid as string));
   const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
 
@@ -28,16 +30,27 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
 
   const onSaveHandle = async () => {
     try {
+      let cardWatchers = card.cardWatchers;
+      if(watch) {
+        if(!cardWatchers.includes(user.uid as string)) 
+          cardWatchers.push(user.uid as string);
+      }else{
+        cardWatchers = cardWatchers.filter((cardWatcher)=>{
+          if(cardWatcher == user.uid as string) return false;
+          return true;
+        })
+      }
       const batch = writeBatch(firestore);
       const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string);
       batch.update(cardRef, {
         cardTitle: title,
         cardDescription: description,
         cardChecklists: checklists,
-      });
-      console.log(checklists);
+        cardWatchers: cardWatchers,
+      } as TypeCard);
       await batch.commit();
       exitHandle();
+      setRefresh(true);
     } catch (error) {
       alert(error);
       exitHandle();
@@ -56,8 +69,13 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
 
   return (
     <>
-      <IonIcon onClick={onExitHandle} slot='primary' icon={close} />
       <IonContent>
+        <IonItem>
+          <IonButton onClick={onExitHandle} >
+            <IonIcon icon={close} />
+          </IonButton>
+          <IonTitle>edit card</IonTitle>
+        </IonItem>
         <IonItem>
           <IonLabel position="fixed">Name</IonLabel>
           <IonInput
@@ -75,6 +93,11 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
             onIonChange={(e)=>setDescription(e.detail.value as string)} />
         </IonItem>
         <CardChecklists card={card} checklists={checklists} setChecklists={setChecklists}/>
+        <CardComments card={card} />
+        <IonItem>
+          <IonCheckbox checked={watch} onIonChange={(e)=>{setWatch(e.detail.checked)}} />
+          <IonLabel className='ion-padding-horizontal'>watch this card</IonLabel>
+        </IonItem>
       </IonContent>
       <IonItem>
         <IonButton onClick={onSaveHandle}>save</IonButton>

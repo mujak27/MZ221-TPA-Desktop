@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Redirect, withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 import { useAuth, useFirestore, useSigninCheck } from 'reactfire';
-import { Tables, TypeUser, enumNotifFreq } from '../Model/model';
+import { enumNotifFreq, Tables, TypeUser } from '../Model/model';
 
 const _Register = (props:any) => {
   const firestore = useFirestore();
@@ -36,6 +36,7 @@ const _Register = (props:any) => {
         userInvitation: [],
         userNotifications: [],
         userBio: '',
+        userImageLink: '',
       } as TypeUser);
       props.history.push('/home');
     } catch (exception) {

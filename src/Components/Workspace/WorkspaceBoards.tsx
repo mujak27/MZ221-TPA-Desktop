@@ -53,8 +53,10 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
   const publicBoards = resPublicBoards as Array<TypeBoard>
 
   let boards = union(privBoards, publicBoards);
-  if(workspace.workspaceMembers.includes(user.uid as string)){
+  if(workspace.workspaceMembers.includes(user.userUid)){
     boards = union(boards, workspaceBoards);
+  }else{
+    console.info('not member board');
   }
   boards = uniqBy(boards, 'uid');
 

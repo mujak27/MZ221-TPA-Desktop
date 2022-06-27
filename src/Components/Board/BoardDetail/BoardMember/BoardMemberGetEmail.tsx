@@ -34,7 +34,7 @@ export const BoardMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemR
   }
 
   const user = (resUsers as Array<TypeUser>)[0];
-  const invited = board.boardMembers.includes(user.userUid as string);
+  const invited = board.boardMembers.includes(user.uid as string);
 
 
   if(workspaceMembers.filter(workspaceMember=>{

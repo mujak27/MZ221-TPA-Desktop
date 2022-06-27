@@ -64,12 +64,16 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
     return <div>inalid url or you do not have access to the workspace</div>;
   }
 
+
   const workspace = resWorkspace as TypeWorkspace;
   const members = (resMembers as Array<TypeMember>);
   const userWorkspace = members.filter((member)=>{
-    return member.userUid==(user.userUid as string)
+    return member.userUid==(user.userUid)
   })[0];
   workspaceContext = createContext<TypeWorkspaceContext>({workspace, userWorkspace: userWorkspace, workspaceMembers: members });
+
+  if(workspace.workspaceVisibility == WorkspaceVisibility.Workspace && !workspace.workspaceMembers.includes(user.userUid))
+    return <>you do not have the access to this workspace..</>
 
   return (
     <>

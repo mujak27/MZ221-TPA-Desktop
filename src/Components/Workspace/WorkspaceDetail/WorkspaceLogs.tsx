@@ -42,6 +42,7 @@ export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
             return (  
               <IonItem key={nanoid()}>
                 {
+                  currentUser &&
                   currentUser.isAdmin?
                     (
                       <IonButton  onClick={()=>onRemoveHandle(index)}>
