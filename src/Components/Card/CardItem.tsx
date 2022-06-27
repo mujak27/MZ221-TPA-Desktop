@@ -19,7 +19,7 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
   const [showDetail, setShowDetail] = useState(false);
   const firestore = useGlobalContext().firestore;
   const {workspace} = useWorkspaceContext();
-  const {board} = useBoardContext();
+  const {board, userBoard} = useBoardContext();
   // const [refItem, setRef] = useRef(ref);
 
   const refCard= doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, cardUid);
@@ -72,16 +72,20 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
                 <IonTitle>{card.cardTitle}</IonTitle>
               </IonItem>
             </IonCard>
-            <IonModal cssClass='sc-ion-modal-lg-s' isOpen={ showDetail} onDidDismiss={()=>{
-              setShowDetail(false);
-            }} >
-              <CardDetail card={card} exitHandle={closeDetail} />
-            </IonModal>
+            {
+              userBoard ?
+              (
+              <IonModal cssClass='sc-ion-modal-lg-s' isOpen={ showDetail} onDidDismiss={()=>{
+                setShowDetail(false);
+              }} >
+                <CardDetail card={card} exitHandle={closeDetail} />
+              </IonModal>
+              ) : null
+            }
           </Container>
         );
       }}
     </Draggable>
-
   );
 };
 

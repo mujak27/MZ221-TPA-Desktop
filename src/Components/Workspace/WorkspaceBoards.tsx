@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { BoardVisibility, KeyBoard, Tables, TypeBoard } from '../../Model/model';
+import { BoardVisibility, KeyBoard, Tables, TypeBoard, WorkspaceVisibility } from '../../Model/model';
 import { BoardItem } from '../Board/BoardItem';
 import '../style.css';
 import { useWorkspaceContext } from './WorkspaceContext';
@@ -16,10 +16,8 @@ type props = {
 }
 
 export const WorkspaceBoards : React.FC<props> = ({}) => {
-  const globalContext = useGlobalContext();
-  const firestore = globalContext.firestore;
-  const user = globalContext.user;
-  const {workspace} = useWorkspaceContext();
+  const {firestore, user} = useGlobalContext();
+  const {workspace, userWorkspace} = useWorkspaceContext();
 
   const refBoard = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards);
   const {status: statusPrivBoard, data: resPrivBoards} = useFirestoreCollectionData(query(refBoard,
@@ -96,14 +94,16 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
           </h3>
         </IonTitle>
       </IonItem>
-      <WorkspaceCreateBoard/>
-      {/* <div className='flexContainer'> */}
+      {
+        workspace.workspaceVisibility == WorkspaceVisibility.Public && !userWorkspace ?
+        null :
+        <WorkspaceCreateBoard/>
+      }
       <IonGrid>
         {
           boardJsxChunk
         }
       </IonGrid>
-      {/* </div> */}
     </div>
   );
 };

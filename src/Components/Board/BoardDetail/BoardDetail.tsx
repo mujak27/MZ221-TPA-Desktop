@@ -164,7 +164,11 @@ export const BoardDetail : React.FC<props> = ({}) => {
                   })
                 }
               </DragDropContext>
-              <BoardCreateGroup />
+              {
+                userBoard ?
+                <BoardCreateGroup /> :
+                null 
+              }
             </div>
           ) : (<BoardCalendar/>)
         }

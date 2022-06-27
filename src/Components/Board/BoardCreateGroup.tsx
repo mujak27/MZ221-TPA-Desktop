@@ -56,14 +56,6 @@ export const BoardCreateGroup : React.FC<props> = ({}) => {
               value={groupName}
               onIonChange={(e)=>setGroupName(e.detail.value as string)}/>
           </IonItem>
-          {/* <IonItem>
-            <IonLabel position="fixed">Description</IonLabel>
-            <IonInput
-              type='text'
-              placeholder="Description"
-              value={workspaceDescription}
-              onIonChange={(e)=>setWorkspaceDescription(e.detail.value as string)} />
-          </IonItem> */}
         </IonContent>
         <IonButton onClick={onSubmitHandle}>create group</IonButton>
       </IonModal>

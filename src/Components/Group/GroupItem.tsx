@@ -27,7 +27,7 @@ const TaskList = styled.div`
 export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
   const {firestore, setRefresh} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board} = useBoardContext();
+  const {board, userBoard} = useBoardContext();
 
 
   const onDelete = async ()=>{
@@ -42,14 +42,22 @@ export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
     <Container>
       <IonCard className='ion-padding groupItem'>
         <IonCardTitle>
-          <IonButton onClick={onDelete}>
-            <IonIcon icon={close}  style={{padding:'0 !important'}}/>
-          </IonButton>
+          {
+            userBoard ?
+            (<IonButton onClick={onDelete}>
+              <IonIcon icon={close}  style={{padding:'0 !important'}}/>
+            </IonButton>) :
+            null
+          }
           {group.groupName}
         </IonCardTitle>
         <IonCardContent>
-          {<GroupCreateCard group={group}/>}
-          <Droppable droppableId={index}>
+          {
+            userBoard ?
+            <GroupCreateCard group={group}/> :
+            null
+          }
+          <Droppable droppableId={index} >
             { (provided) =>{
               return (
                 <TaskList ref={provided.innerRef} {...provided.droppableProps} >
