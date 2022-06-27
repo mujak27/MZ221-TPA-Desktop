@@ -1,21 +1,23 @@
 import { initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
-import { collection, Firestore, getFirestore, query, where } from 'firebase/firestore';
+import { collection, Firestore, getFirestore, query } from 'firebase/firestore';
 import { FirebaseStorage, getStorage } from 'firebase/storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useFirestore, useFirestoreCollectionData, useStorage } from 'reactfire';
 import { firebaseConfig } from '../Model/firebase';
-import { enumNotifFreq, KeyUser, Tables, TypeUser } from '../Model/model';
+import { enumNotifFreq, Tables, TypeNotification, TypeUser } from '../Model/model';
 
 type typeGlobalContext = {
   auth : Auth,
   user : TypeUser,
+  users : Array<TypeUser>,
   firestore : Firestore,
   refresh : boolean,
   setRefresh : React.Dispatch<React.SetStateAction<boolean>>,
   history: any,
-  storage: FirebaseStorage
+  storage: FirebaseStorage,
+  notifications : Array<TypeNotification>
 }
 
 let globalContext = createContext<typeGlobalContext>({
@@ -30,11 +32,13 @@ let globalContext = createContext<typeGlobalContext>({
     userNotifications: [],
     userImageLink: '',
   },
+  users : [],
   firestore: getFirestore(initializeApp(firebaseConfig)),
   refresh: false,
   setRefresh: '' as unknown as React.Dispatch<React.SetStateAction<boolean>>,
   history: null,
   storage: getStorage(initializeApp(firebaseConfig)),
+  notifications : [],
 });
 
 export const useGlobalContext = ()=>useContext(globalContext);
@@ -48,46 +52,61 @@ export const ContextProvider = ({children }: props)=>{
   const storage = useStorage();
   const auth = getAuth();
   const userUid = auth.currentUser?.uid as string;
-  const userDataRef = collection(firestore, Tables.Users);
   const [refresh, setRefresh] = useState(false);
   const history = useHistory();
-  const {status: statusUser, data: resUser} = useFirestoreCollectionData(query(userDataRef,
-      where(KeyUser.userUid, '==', userUid),
-  ), {
+  
+  const userDataRef = collection(firestore, Tables.Users);
+  const {status: statusUsers, data: resUsers} = useFirestoreCollectionData(query(userDataRef), {
     idField: 'uid'
   });
 
-  useEffect(()=>{
+  const refNotifications = collection(firestore, Tables.Users, userUid, Tables.Notifications);
+  const {status : statusNotifications, data : resNotifications} = useFirestoreCollectionData(refNotifications, {
+    idField : 'uid'
+  });
+
+    useEffect(()=>{
     console.info('refreshed');
   }, [refresh]);
 
-  if (statusUser === 'loading') {
+  if (statusUsers === 'loading' || statusNotifications === 'loading') {
     return <div>fetching user data...</div>;
   }
 
-  
-  const user = resUser[0] as TypeUser;
+
+
+  const notifications = resNotifications as Array<TypeNotification>;
+  console.info(notifications);
+
+  const users = resUsers as Array<TypeUser>;
+  const user = users.filter((user)=>{return user.userUid == userUid})[0];  
+  console.info(users);
+  console.info(userUid);
   console.info('useruid');
   console.info(user.userUid);
   globalContext = createContext<typeGlobalContext>({
     auth,
     user,
+    users,
     firestore,
     refresh,
     setRefresh,
     history,
-    storage
+    storage,
+    notifications
   });
 
   return (
     <globalContext.Provider value={{
       auth,
       user,
+      users,
       firestore,
       refresh,
       setRefresh,
       history,
-      storage
+      storage,
+      notifications
     } as typeGlobalContext}>
       {children}
     </globalContext.Provider>

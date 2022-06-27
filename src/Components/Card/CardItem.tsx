@@ -72,7 +72,7 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
                 <IonTitle>{card.cardTitle}</IonTitle>
               </IonItem>
             </IonCard>
-            <IonModal isOpen={ showDetail } onDidDismiss={()=>{
+            <IonModal cssClass='sc-ion-modal-lg-s' isOpen={ showDetail} onDidDismiss={()=>{
               setShowDetail(false);
             }} >
               <CardDetail card={card} exitHandle={closeDetail} />

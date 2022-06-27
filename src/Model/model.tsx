@@ -85,6 +85,7 @@ export type TypeMember = {
   userUid : string,
   isAdmin : boolean,
   isOwner : boolean,
+  userName? : string
 }
 
 export enum KeyChecklist {
@@ -98,15 +99,15 @@ export type TypeCheckList = {
 }
 
 export type TypeCommentReply = {
-  userUid : string,
-  replyValue : string,
+  userUid : string
+  replyValue : string
 }
 
 export type TypeComment = {
-  uid? : string,
-  commentOwnerUid : string,
-  userUids : Array<string>, 
-  commentValue : string,
+  uid? : string
+  commentOwnerUid : string
+  userUids : Array<string>,
+  commentValue : string
   commentReplies : Array<TypeCommentReply>
   commentMentions : Array<string>
 }
@@ -152,7 +153,7 @@ export enum KeyBoard {
   boardDescription = 'boardDescription',
   boardStatus = 'boardStatus',
   boardVisibility = 'boardVisibility',
-boardCreatedDate = 'boardCreatedDate',
+  boardCreatedDate = 'boardCreatedDate',
   boardMembers = 'boardMembers',
 }
 

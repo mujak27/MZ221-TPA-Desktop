@@ -37,7 +37,7 @@ const Main = () => {
         <Navbar />
       </IonHeader>
       <IonContent>
-        <IonSplitPane contentId='main'>
+        <IonSplitPane contentId='main' when='xs'>
           <SideNav />
           <IonReactRouter>
             <IonRouterOutlet id='main' className='ion-margin ion-padding'>

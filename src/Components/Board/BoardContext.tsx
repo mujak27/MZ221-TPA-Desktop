@@ -44,7 +44,7 @@ type props = {
 }
 
 export const BoardContext : React.FC<props> = ({children}) => {
-  const {firestore, user} = useGlobalContext();
+  const {firestore, user, users} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
 
   const {boardUid} = useParams() as {boardUid : string};
@@ -79,10 +79,16 @@ export const BoardContext : React.FC<props> = ({children}) => {
 
   const board = resBoard as TypeBoard;
   const groups = resGroups as TypeGroup[];
-  const boardMembers = resMembers as Array<TypeMember>;
+  let boardMembers = (resMembers as Array<TypeMember>)
+  boardMembers.map((resMember)=>{
+    resMember.userName = users.filter((user)=>{
+      return user.userUid == resMember.userUid
+    })[0].userName;
+  })
   const userBoard = boardMembers.filter((member)=>{
     return member.userUid == user.userUid as string
   })[0];
+  console.info(boardMembers);
   boardContext = createContext<TypeBoardContext>({board, groups, boardMembers, userBoard});
 
 

@@ -92,12 +92,12 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
             value={description}
             onIonChange={(e)=>setDescription(e.detail.value as string)} />
         </IonItem>
-        <CardChecklists card={card} checklists={checklists} setChecklists={setChecklists}/>
-        <CardComments card={card} />
         <IonItem>
           <IonCheckbox checked={watch} onIonChange={(e)=>{setWatch(e.detail.checked)}} />
           <IonLabel className='ion-padding-horizontal'>watch this card</IonLabel>
         </IonItem>
+        <CardChecklists card={card} checklists={checklists} setChecklists={setChecklists}/>
+        <CardComments card={card} />
       </IonContent>
       <IonItem>
         <IonButton onClick={onSaveHandle}>save</IonButton>

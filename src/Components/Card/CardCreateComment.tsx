@@ -17,17 +17,27 @@ export const CardCreateComment : React.FC<props> = ({card}) => {
 
   const [value, setValue] = useState('');
 
-  const onSubmitHandle = async () =>{
-
   
-  const refComments = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string, Tables.Comments);
-  await addDoc(refComments, {
-    userUids : [user.userUid],
-    commentMentions : [],
-    commentOwnerUid : user.userUid,
-    commentReplies : [],
-    commentValue : value,
-  } as TypeComment)
+  // const tags = boardMembers.map((boardMember, index)=>{
+  //   return {
+  //     id : index.toString(),
+  //     display : boardMember.userName as string
+  //   }
+  // })
+  
+  const onSubmitHandle = async () =>{
+    
+    console.info(value);
+  
+    const refComments = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string, Tables.Comments);
+    await addDoc(refComments, {
+      userUids : [user.userUid],
+      commentMentions : [],
+      commentOwnerUid : user.userUid,
+      commentReplies : [],
+      commentValue : value,
+    } as TypeComment)
+    console.info(refComments);
   };
 
   return (
@@ -39,6 +49,14 @@ export const CardCreateComment : React.FC<props> = ({card}) => {
           placeholder="Name"
           value={value}
           onIonChange={(e)=>setValue(e.detail.value as string)}/>
+        {/* <MentionsInput
+          style={{width : '60%', border : '0', outline:'0'}}
+          singleLine={false}
+          value={value}
+          onChange={e=>setValue(e.target.value)}
+        >
+          <Mention trigger="@" data={tags}  />
+        </MentionsInput> */}
         <IonButton onClick={onSubmitHandle}>create</IonButton>
       </IonItem>
     </>
