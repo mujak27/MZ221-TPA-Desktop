@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../../context/ContextProvider';
 import { Tables, TypeWorkspace } from '../../../Model/model';
-import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
 import { useBoardContext } from '../BoardContext';
 
 type props = {
@@ -15,7 +14,6 @@ type props = {
 
 export const BoardLogs : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
   const {board, userBoard} = useBoardContext();
   const [logs, setLogs] = useState(board.boardLogs);
 
@@ -24,7 +22,7 @@ export const BoardLogs : React.FC<props> = ({showModal, setShowModal}) => {
     newLogs.splice(index);
     setLogs(newLogs);
     const batch = writeBatch(firestore);
-    const refBoard = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string);
+    const refBoard = doc(firestore, Tables.Boards, board.uid as string);
     batch.update(refBoard, {
       workspaceLogs: newLogs
     } as TypeWorkspace);

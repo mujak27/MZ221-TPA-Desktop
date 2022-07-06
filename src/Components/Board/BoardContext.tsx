@@ -1,16 +1,16 @@
-import { collection, doc, query, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, DocumentReference, query, serverTimestamp } from 'firebase/firestore';
 import React, { createContext, useContext } from 'react';
 import { useParams } from 'react-router';
 import { useFirestoreCollectionData, useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
 import { BoardStatus, BoardVisibility, Tables, TypeBoard, TypeGroup, TypeMember } from '../../Model/model';
-import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 
 type TypeBoardContext = {
   board : TypeBoard,
   userBoard : TypeMember,
   groups : TypeGroup[],
-  boardMembers: Array<TypeMember>
+  boardMembers: Array<TypeMember>,
+  refBoard : DocumentReference | string,
 }
 
 let boardContext = createContext<TypeBoardContext>({
@@ -24,6 +24,8 @@ let boardContext = createContext<TypeBoardContext>({
     boardGroupUids: [],
     boardLogs: [],
     boardDeleteRequest: [],
+    boardWorkspaceUid: '',
+    boardFavoritedBy: [],
   } as TypeBoard,
   userBoard : {
     isAdmin: false,
@@ -32,6 +34,7 @@ let boardContext = createContext<TypeBoardContext>({
   },
   groups: [],
   boardMembers: [],
+  refBoard: '',
 });
 
 export const useBoardContext = ()=>{
@@ -45,23 +48,22 @@ type props = {
 
 export const BoardContext : React.FC<props> = ({children}) => {
   const {firestore, user, users} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
 
   const {boardUid} = useParams() as {boardUid : string};
 
 
-  const refBoard = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, boardUid);
+  const refBoard = doc(firestore, Tables.Boards, boardUid);
   const {status: statusBoard, data: resBoard} = useFirestoreDocData(refBoard, {
     idField: 'uid',
   });
 
-  const refGroups = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, boardUid, Tables.Groups);
+  const refGroups = collection(firestore, Tables.Boards, boardUid, Tables.Groups);
   const {status: statusGroups, data: resGroups} = useFirestoreCollectionData(refGroups, {
     idField: 'uid',
   });
 
   
-  const refMember = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, boardUid, Tables.Members);
+  const refMember = collection(firestore, Tables.Boards, boardUid, Tables.Members);
   const {status: statusMember, data: resMembers} = useFirestoreCollectionData(query(
       refMember,
   ), {
@@ -89,7 +91,7 @@ export const BoardContext : React.FC<props> = ({children}) => {
     return member.userUid == user.userUid as string
   })[0];
   console.info(boardMembers);
-  boardContext = createContext<TypeBoardContext>({board, groups, boardMembers, userBoard});
+  boardContext = createContext<TypeBoardContext>({board, groups, boardMembers, userBoard, refBoard});
 
 
   return (

@@ -10,7 +10,6 @@ import { Tables, TypeGroup } from '../../Model/model';
 import { useBoardContext } from '../Board/BoardContext';
 import { CardItem } from '../Card/CardItem';
 import '../style.css';
-import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 import { GroupCreateCard } from './GroupCreateCard';
 
 type props = {
@@ -26,12 +25,11 @@ const TaskList = styled.div`
 
 export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
   const {firestore, setRefresh} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
   const {board, userBoard} = useBoardContext();
 
 
   const onDelete = async ()=>{
-    const refGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, group.uid as string);
+    const refGroup = doc(firestore, Tables.Boards, board.uid as string, Tables.Groups, group.uid as string);
     await deleteDoc(refGroup);
     setRefresh(true);
   }

@@ -3,8 +3,9 @@ import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/f
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../../../context/ContextProvider';
-import { KeyUser, Tables, TypeMember, TypeUser, TypeWorkspace } from '../../../../Model/model';
+import { KeyUser, Tables, TypeBoard, TypeMember, TypeUser } from '../../../../Model/model';
 import { useWorkspaceContext } from '../../../Workspace/WorkspaceContext';
+import { useBoardContext } from '../../BoardContext';
 
 type props = {
   member : TypeMember,
@@ -14,6 +15,7 @@ type props = {
 export const BoardMemberItem : React.FC<props> = ({member, userUid})=>{
   const {firestore} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
+  const {board} = useBoardContext();
 
 
   const refUsers = collection(firestore, Tables.Users);
@@ -32,16 +34,16 @@ export const BoardMemberItem : React.FC<props> = ({member, userUid})=>{
 
   const onKickHandle = async ()=>{
     try {
-      await deleteDoc(doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Members, member.uid as string));
-      const refWorkspace = doc(firestore, Tables.Workspaces, workspace.uid as string);
+      await deleteDoc(doc(firestore, Tables.Boards, board.uid as string, Tables.Members, member.uid as string));
+      const refBoard = doc(firestore, Tables.Boards, board.uid as string);
       const batch = writeBatch(firestore);
-      batch.update(refWorkspace, {
-        workspaceMembers:
-          workspace.workspaceMembers.filter((memberUid)=>{
+      batch.update(refBoard, {
+        boardMembers:
+          board.boardMembers.filter((memberUid)=>{
             if (memberUid == member.userUid as string) return false;
             return true;
           }),
-      } as TypeWorkspace);
+      } as TypeBoard);
       await batch.commit();
       alert('removed');
     }catch(e){

@@ -3,7 +3,7 @@ import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { checkmarkCircle, closeCircle, exit } from 'ionicons/icons';
 import React from 'react';
 import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeWorkspace } from '../../../Model/model';
+import { Tables, TypeBoard } from '../../../Model/model';
 import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
 import { useBoardContext } from '../BoardContext';
 
@@ -14,17 +14,18 @@ type props = {
 
 export const BoardLeave : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh, user, history} = useGlobalContext();
-  const {workspace, userWorkspace, workspaceMembers: members} = useWorkspaceContext();
-  const {board} = useBoardContext();
+  const {workspace, workspaceMembers: members} = useWorkspaceContext();
+  const {board, userBoard} = useBoardContext();
   
   const onLeave = async ()=>{
-    const newMemberUids = Array.from(board.boardMembers);
-    newMemberUids.filter((memberUid)=>{
+    let newMemberUids = Array.from(board.boardMembers).filter((memberUid)=>{
       if(memberUid == user.userUid) return false;
       return true;
     });
+    console.info(board.boardMembers);
+    console.info(newMemberUids);
     if(newMemberUids.length == 0){
-      deleteDoc(doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string));
+      deleteDoc(doc(firestore, Tables.Boards, board.uid as string));
       alert('leave and deleted');
       return;
     }
@@ -39,22 +40,22 @@ export const BoardLeave : React.FC<props> = ({showModal, setShowModal}) => {
     }
 
 
-    const refMember = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string,  Tables.Members, userWorkspace.uid as string);
+    const refMember = doc(firestore, Tables.Boards, board.uid as string,  Tables.Members, userBoard.uid as string);
     deleteDoc(refMember);
     const batch = writeBatch(firestore);
-    const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string);
+    const cardRef = doc(firestore, Tables.Boards, board.uid as string);
     batch.update(cardRef, {
-      workspaceMembers: [
-        ...(workspace.workspaceMembers.filter((userUid)=>{
+      boardMembers: [
+        ...(board.boardMembers.filter((userUid)=>{
           if(userUid == user.userUid) return false;
           return true;
         })),
       ]
-    } as TypeWorkspace);
+    } as TypeBoard);
     await batch.commit();
     alert('success left')
-    setRefresh(true);
     history.push(`/workspace/${workspace.uid as string}`);
+    setRefresh(true);
   }
 
   return (

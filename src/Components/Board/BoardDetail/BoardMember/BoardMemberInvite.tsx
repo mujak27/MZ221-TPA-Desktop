@@ -4,7 +4,6 @@ import { doc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../../../context/ContextProvider';
 import { EnumItemType, Tables } from '../../../../Model/model';
-import { useWorkspaceContext } from '../../../Workspace/WorkspaceContext';
 import { useBoardContext } from '../../BoardContext';
 import { BoardMemberGetEmail } from './BoardMemberGetEmail';
 import { BoardMemberGetLink } from './BoardMemberGetLink';
@@ -17,10 +16,9 @@ export const BoardMemberInvite : React.FC<props> = ({})=>{
   const {firestore} = useGlobalContext();
   const [email, setEmail] = useState('');
   const [submitEmail, setSubmitEmail] = useState(false);
-  const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
 
-  const refBoard = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string);
+  const refBoard = doc(firestore, Tables.Boards, board.uid as string);
 
   const onSearchEmailHandle = ()=>{
     setSubmitEmail(true);

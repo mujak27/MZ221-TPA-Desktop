@@ -1,11 +1,12 @@
 import { IonButton, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonModal, IonSelect, IonSelectOption, IonTitle } from '@ionic/react';
-import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/firestore';
 import { checkmarkCircle, closeCircle, settings } from 'ionicons/icons';
 import { uniq } from 'lodash';
 import { nanoid } from 'nanoid';
 import React, { useState } from 'react';
+import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeWorkspace, WorkspaceVisibility } from '../../../Model/model';
+import { BoardStatus, KeyBoard, Tables, TypeBoard, TypeWorkspace, WorkspaceVisibility } from '../../../Model/model';
 import { useWorkspaceContext } from '../WorkspaceContext';
 
 type props = {
@@ -31,6 +32,18 @@ export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) =
     return member.userUid
   })
 
+  const refBoards = collection(firestore, Tables.Boards);
+  const {status : statusBoards, data : resBoards} = useFirestoreCollectionData(query(
+      refBoards, 
+      where(KeyBoard.boardWorkspaceUid, '==', workspace.uid as string)
+      ), {
+    idField: 'uid'
+  })
+
+  if(statusBoards === 'loading') return <>fetching data...</>
+
+  const boards = resBoards as Array<TypeBoard>
+
 
   const onDelete = async ()=>{
     let deleteRequest = [...workspace.workspaceDeleteRequest, user.userUid];
@@ -41,6 +54,15 @@ export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) =
     })
     if(adminNotApproved.length == 0){
       deleteDoc(refWorkspace);
+      const batch = writeBatch(firestore);
+      boards.forEach((board)=>{
+        const refBoard = doc(firestore, Tables.Boards, board.uid as string);
+        batch.update(refBoard, {
+          boardStatus: BoardStatus.Close
+        } as TypeBoard)
+        console.info(board.boardName + ' closed');
+      })
+      batch.commit();
       alert('workspace deleted!');
       setRefresh(true);
       history.push('/workspace');

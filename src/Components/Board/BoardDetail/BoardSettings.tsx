@@ -23,7 +23,7 @@ export const BoardSettings : React.FC<props> = ({showModal, setShowModal}) => {
   const [description, setDescription] = useState(board.boardDescription);
   const [visibility, setVisibility] = useState(board.boardVisibility);
 
-  const refBoard = doc(firestore, Tables.Workspaces, board.uid as string, Tables.Boards, board.uid as string);
+  const refBoard = doc(firestore, Tables.Boards, board.uid as string);
   const boardAdmins = boardMembers.filter((boardMember)=>{
     if(boardMember.isAdmin) return true;
     return false;
@@ -63,7 +63,7 @@ export const BoardSettings : React.FC<props> = ({showModal, setShowModal}) => {
   const onSave = async ()=>{
     try {
       const batch = writeBatch(firestore);
-      const refBoard = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string);
+      const refBoard = doc(firestore, Tables.Boards, board.uid as string);
       batch.update(refBoard, {
         boardName: name,
         boardDescription: description,

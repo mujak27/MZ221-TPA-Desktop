@@ -156,6 +156,8 @@ export enum KeyBoard {
   boardVisibility = 'boardVisibility',
   boardCreatedDate = 'boardCreatedDate',
   boardMembers = 'boardMembers',
+  boardWorkspaceUid = 'boardWorkspaceUid',
+  boardFavoritedBy = 'boardFavoritedBy'
 }
 
 export type TypeBoard = {
@@ -169,6 +171,8 @@ export type TypeBoard = {
   boardGroupUids : Array<string>
   boardDeleteRequest : Array<string>
   boardLogs : Array<string>
+  boardWorkspaceUid : string
+  boardFavoritedBy : Array<string>
 }
 
 export enum KeyWorkspace {
@@ -188,8 +192,8 @@ export type TypeWorkspace = {
   workspaceMembers : Array<string>
   workspaceDeleteRequest : Array<string>
   workspaceLogs : Array<string>
+  workspaceBoardUids: Array<string>
 }
-
 
 export type TypeInvitationLink = {
   uid? : string,
@@ -197,3 +201,4 @@ export type TypeInvitationLink = {
   refItem : DocumentReference,
   InvitationExpired : number,
 }
+

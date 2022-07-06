@@ -26,6 +26,7 @@ export const WorkspaceCreate : React.FC<props> = ({}) => {
         workspaceMembers: [userUid],
         workspaceDeleteRequest: [],
         workspaceLogs: [],
+        workspaceBoardUids: [],
       } as TypeWorkspace);
       await addDoc(collection(firestore, Tables.Workspaces, refWorkspace.id, Tables.Members), {
         userUid: userUid,

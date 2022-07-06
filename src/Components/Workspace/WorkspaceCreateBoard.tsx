@@ -20,7 +20,7 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
 
   const onSubmitHandle = async () =>{
     try {
-      const refBoard = await addDoc(collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards ), {
+      const refBoard = await addDoc(collection(firestore, Tables.Boards ), {
         boardName: boardName,
         boardDescription: boardDescription,
         boardMembers: [user.userUid],
@@ -30,8 +30,10 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
         boardGroupUids: [],
         boardLogs: [],
         boardDeleteRequest: [],
+        boardWorkspaceUid: workspace.uid,
+        boardFavoritedBy: [],
       } as TypeBoard);
-      await addDoc(collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, refBoard.id, Tables.Members ), {
+      await addDoc(collection(firestore, Tables.Boards, refBoard.id, Tables.Members ), {
         userUid: user.userUid,
         isAdmin: true,
         isOwner: true,

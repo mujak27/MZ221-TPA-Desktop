@@ -6,7 +6,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../../context/ContextProvider';
 import { Tables, TypeCard } from '../../../Model/model';
-import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
 import { useBoardContext } from '../BoardContext';
 
 const localizer = momentLocalizer(moment)
@@ -16,11 +15,10 @@ type props = {
 
 export const BoardCalendar : React.FC<props> = ({}) => {
   const {firestore} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
 
 
-  const refCards = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards);
+  const refCards = collection(firestore, Tables.Boards, board.uid as string, Tables.Cards);
   const {status, data} = useFirestoreCollectionData(refCards, {
     idField: 'uid'
   });

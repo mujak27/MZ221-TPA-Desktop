@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../../context/ContextProvider';
 import { Tables, TypeCard } from '../../Model/model';
 import { useBoardContext } from '../Board/BoardContext';
-import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 import { CardDetail } from './CardDetail';
 
 type props = {
@@ -18,11 +17,10 @@ type props = {
 export const CardItem : React.FC<props> = ({cardUid, index}) => {
   const [showDetail, setShowDetail] = useState(false);
   const firestore = useGlobalContext().firestore;
-  const {workspace} = useWorkspaceContext();
   const {board, userBoard} = useBoardContext();
   // const [refItem, setRef] = useRef(ref);
 
-  const refCard= doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, cardUid);
+  const refCard= doc(firestore, Tables.Boards, board.uid as string, Tables.Cards, cardUid);
   const {status: statusCard, data: resCard } = useFirestoreDocData(refCard, {
     idField: 'uid',
   });

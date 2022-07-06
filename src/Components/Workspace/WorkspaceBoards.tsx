@@ -19,7 +19,7 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
   const {firestore, user} = useGlobalContext();
   const {workspace, userWorkspace} = useWorkspaceContext();
 
-  const refBoard = collection(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards);
+  const refBoard = collection(firestore, Tables.Boards);
   const {status: statusPrivBoard, data: resPrivBoards} = useFirestoreCollectionData(query(refBoard,
       where(KeyBoard.boardMembers, 'array-contains', user.userUid),
   ), {

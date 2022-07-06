@@ -1,11 +1,11 @@
-import { IonButton, IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
-import { doc, writeBatch } from 'firebase/firestore';
+import { IonButton, IonCheckbox, IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
+import { doc, DocumentReference, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Redirect } from 'react-router';
 import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeGroup } from '../../../Model/model';
+import { Tables, TypeBoard, TypeGroup } from '../../../Model/model';
 import { GroupItem } from '../../Group/GroupItem';
 import '../../style.css';
 import { useWorkspaceContext } from '../../Workspace/WorkspaceContext';
@@ -21,9 +21,9 @@ type props = {
 }
 
 export const BoardDetail : React.FC<props> = ({}) => {
-  const {firestore, history, setRefresh} = useGlobalContext();
+  const {firestore, history, setRefresh, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board, userBoard} = useBoardContext();
+  const {board, userBoard, refBoard} = useBoardContext();
   const {groups: groupContext } = useBoardContext();
 
   enum tabs {
@@ -31,6 +31,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
     Calendar = 'Calendar',
   }
 
+  const [fav, setFav] = useState(board.boardFavoritedBy && board.boardFavoritedBy.includes(user.userUid));
   const [tab, setTab] = useState(tabs.Kanban);
   const [showMember, setShowMember] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
@@ -83,7 +84,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
 
       try {
         const batch2 = writeBatch(firestore);
-        const refDestGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, destGroup);
+        const refDestGroup = doc(firestore, Tables.Boards, board.uid as string, Tables.Groups, destGroup);
         batch2.update(refDestGroup, {
           groupCardUids: newDestGroupCards,
         } as TypeGroup);
@@ -104,13 +105,13 @@ export const BoardDetail : React.FC<props> = ({}) => {
 
       try {
         const batch1 = writeBatch(firestore);
-        const refSourceGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, sourceGroup);
+        const refSourceGroup = doc(firestore, Tables.Boards, board.uid as string, Tables.Groups, sourceGroup);
         batch1.update(refSourceGroup, {
           groupCardUids: newSourceGroupCards,
         } as TypeGroup);
         await batch1.commit();
         const batch2 = writeBatch(firestore);
-        const refDestGroup = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Groups, destGroup);
+        const refDestGroup = doc(firestore, Tables.Boards, board.uid as string, Tables.Groups, destGroup);
         batch2.update(refDestGroup, {
           groupCardUids: newDestGroupCards,
         } as TypeGroup);
@@ -121,6 +122,22 @@ export const BoardDetail : React.FC<props> = ({}) => {
     }
   };
 
+  const onFavChange = ()=>{
+    const batch = writeBatch(firestore);
+    let newFavorite = Array.from(board.boardFavoritedBy);
+    fav ?
+      newFavorite = newFavorite.filter((userUid)=>{return userUid!=user.userUid}) : 
+      newFavorite.push(user.userUid);
+    console.info(newFavorite);
+    console.info(refBoard);
+    batch.update(refBoard as DocumentReference, {
+      boardFavoritedBy : newFavorite
+    } as TypeBoard);
+    batch.commit();
+    setFav(!fav);
+    console.info('updated');
+  }
+
   return (
     <>
       <IonHeader>
@@ -130,8 +147,16 @@ export const BoardDetail : React.FC<props> = ({}) => {
           </IonTitle>
           <BoardLogs showModal={showLogs} setShowModal={setShowLogs} />
           {userBoard ? 
-            <BoardLeave showModal={showLeave} setShowModal={setShowLeave} />:
+            (<>
+              <BoardLeave showModal={showLeave} setShowModal={setShowLeave} />
+              <IonCheckbox checked={fav} onIonChange={onFavChange} />
+            </>):
             null
+          }
+          {
+            board.boardFavoritedBy && board.boardFavoritedBy.includes(user.userUid) ?
+            <>favorite</>
+            :null
           }
           {userBoard && userBoard.isAdmin ?
             (

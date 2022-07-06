@@ -8,7 +8,7 @@ import { Tables, TypeMember, TypeWorkspace, WorkspaceVisibility } from '../../Mo
 type TypeWorkspaceContext = {
   workspace : TypeWorkspace,
   userWorkspace : TypeMember,
-  workspaceMembers : Array<TypeMember>
+  workspaceMembers : Array<TypeMember>,
 }
 
 let workspaceContext = createContext<TypeWorkspaceContext>({
@@ -20,6 +20,7 @@ let workspaceContext = createContext<TypeWorkspaceContext>({
     workspaceCreatedDate: 0,
     workspaceDeleteRequest: [],
     workspaceLogs: [],
+    workspaceBoardUids: [], 
   } as TypeWorkspace,
   userWorkspace: {
     isAdmin: false,
@@ -44,6 +45,7 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
   const {workspaceUid} = useParams() as {workspaceUid : string};
 
   const refWorkspace = doc(firestore, Tables.Workspaces, workspaceUid);
+  // const refWorkspace = doc(firestore, ...[...workspacePath]);
   const {status: statusWorkspace, data: resWorkspace} = useFirestoreDocData(refWorkspace, {
     idField: 'uid',
   });
