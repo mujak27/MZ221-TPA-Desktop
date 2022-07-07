@@ -1,5 +1,5 @@
 import { IonIcon, IonItem, IonLabel, IonList, IonMenu, IonMenuToggle } from '@ionic/react';
-import { gridOutline } from 'ionicons/icons';
+import { clipboardOutline, gridOutline } from 'ionicons/icons';
 import React from 'react';
 import { useLocation } from 'react-router';
 import './SideNav.css';
@@ -11,6 +11,11 @@ const appPages = [
     url: '/workspace',
     icon: gridOutline,
   },
+  {
+    title: 'Boards',
+    url: '/board',
+    icon : clipboardOutline
+  }
 ];
 
 export const SideNav = ({} : any)=> {

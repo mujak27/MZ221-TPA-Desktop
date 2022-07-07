@@ -13,8 +13,8 @@ type props = {
 }
 
 export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
-  const {firestore, setRefresh} = useGlobalContext();
-  const {workspace, userWorkspace: currentUser} = useWorkspaceContext();
+  const {firestore, setRefresh, user} = useGlobalContext();
+  const {workspace} = useWorkspaceContext();
   const [logs, setLogs] = useState(workspace.workspaceLogs);
 
   const onRemoveHandle = async (index : number)=>{
@@ -42,8 +42,7 @@ export const WorkspaceLogs : React.FC<props> = ({showModal, setShowModal}) => {
             return (  
               <IonItem key={nanoid()}>
                 {
-                  currentUser &&
-                  currentUser.isAdmin?
+                  workspace.workspaceAdmins.includes(user.userUid) ?
                     (
                       <IonButton  onClick={()=>onRemoveHandle(index)}>
                         <IonIcon icon={close} />

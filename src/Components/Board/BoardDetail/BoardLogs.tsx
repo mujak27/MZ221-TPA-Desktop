@@ -13,8 +13,8 @@ type props = {
 }
 
 export const BoardLogs : React.FC<props> = ({showModal, setShowModal}) => {
-  const {firestore, setRefresh} = useGlobalContext();
-  const {board, userBoard} = useBoardContext();
+  const {firestore, setRefresh, user} = useGlobalContext();
+  const {board} = useBoardContext();
   const [logs, setLogs] = useState(board.boardLogs);
 
   const onRemoveHandle = async (index : number)=>{
@@ -42,7 +42,7 @@ export const BoardLogs : React.FC<props> = ({showModal, setShowModal}) => {
             return (  
               <IonItem key={nanoid()}>
                 {
-                  userBoard.isAdmin?
+                  board.boardAdmins.includes(user.userUid)?
                     (
                       <IonButton  onClick={()=>onRemoveHandle(index)}>
                         <IonIcon icon={close} />

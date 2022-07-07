@@ -3,7 +3,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { close } from 'ionicons/icons';
 import { default as React, useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { BoardStatus, BoardVisibility, Tables, TypeBoard, TypeMember } from '../../Model/model';
+import { BoardStatus, BoardVisibility, Tables, TypeBoard } from '../../Model/model';
 import { useWorkspaceContext } from './WorkspaceContext';
 
 type props = {
@@ -20,10 +20,11 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
 
   const onSubmitHandle = async () =>{
     try {
-      const refBoard = await addDoc(collection(firestore, Tables.Boards ), {
+      await addDoc(collection(firestore, Tables.Boards ), {
         boardName: boardName,
         boardDescription: boardDescription,
         boardMembers: [user.userUid],
+        boardAdmins: [user.userUid],
         boardVisibility: BoardVisibility.Board,
         boardStatus: BoardStatus.Open,
         boardCreatedDate: serverTimestamp(),
@@ -33,11 +34,6 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
         boardWorkspaceUid: workspace.uid,
         boardFavoritedBy: [],
       } as TypeBoard);
-      await addDoc(collection(firestore, Tables.Boards, refBoard.id, Tables.Members ), {
-        userUid: user.userUid,
-        isAdmin: true,
-        isOwner: true,
-      } as TypeMember);
       setShowCreate(false);
     } catch (exception) {
       console.log(exception);

@@ -23,7 +23,7 @@ type props = {
 export const BoardDetail : React.FC<props> = ({}) => {
   const {firestore, history, setRefresh, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board, userBoard, refBoard} = useBoardContext();
+  const {board, refBoard} = useBoardContext();
   const {groups: groupContext } = useBoardContext();
 
   enum tabs {
@@ -146,7 +146,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
           <h1>{board.boardName}</h1>
           </IonTitle>
           <BoardLogs showModal={showLogs} setShowModal={setShowLogs} />
-          {userBoard ? 
+          {board.boardMembers.includes(user.userUid) ? 
             (<>
               <BoardLeave showModal={showLeave} setShowModal={setShowLeave} />
               <IonCheckbox checked={fav} onIonChange={onFavChange} />
@@ -158,7 +158,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
             <>favorite</>
             :null
           }
-          {userBoard && userBoard.isAdmin ?
+          {board.boardAdmins.includes(user.userUid) ?
             (
               <>
                 <BoardMember showModal={showMember} setShowModal={setShowMember} />
@@ -190,7 +190,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
                 }
               </DragDropContext>
               {
-                userBoard ?
+                board.boardMembers.includes(user.userUid)?
                 <BoardCreateGroup /> :
                 null 
               }

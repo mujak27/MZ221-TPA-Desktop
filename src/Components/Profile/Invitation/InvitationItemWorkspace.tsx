@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import { IonButton, IonItem } from '@ionic/react';
-import { addDoc, collection, writeBatch } from 'firebase/firestore';
+import { collection, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../../context/ContextProvider';
 import { getPath } from '../../../Helper';
-import { Tables, TypeInvitation, TypeMember, TypeWorkspace } from '../../../Model/model';
+import { Tables, TypeInvitation, TypeWorkspace } from '../../../Model/model';
 
 type props = {
   invitation : TypeInvitation
@@ -54,11 +54,6 @@ export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
       path.push(Tables.Members);
       // @ts-ignore
       const refMembers = collection(firestore, ...path);
-      await addDoc(refMembers, {
-        isAdmin: false,
-        isOwner: false,
-        userUid: user.userUid,
-      } as TypeMember);
       const batch = writeBatch(firestore);
       batch.update(docRef, {
         workspaceMembers: [

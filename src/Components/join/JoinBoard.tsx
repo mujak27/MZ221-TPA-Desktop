@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import { IonButton, IonCard, IonCardContent, IonCardTitle } from '@ionic/react';
-import { addDoc, collection, doc, DocumentReference, writeBatch } from 'firebase/firestore';
+import { doc, DocumentReference, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
 import { getPath } from '../../Helper';
-import { Tables, TypeBoard, TypeMember, TypeWorkspace } from '../../Model/model';
+import { TypeBoard, TypeWorkspace } from '../../Model/model';
 
 type props = {
   refBoard : DocumentReference,
@@ -40,15 +40,6 @@ export const JoinBoard : React.FC<props> = ({refBoard}) => {
       console.info(user);
       console.info(user.userUid);
       const docRef = refBoard;
-      const path = getPath(docRef);
-      path.push(Tables.Members);
-      // @ts-ignore
-      const refMembers = collection(firestore, ...(path));
-      await addDoc(refMembers, {
-        isAdmin: false,
-        isOwner: false,
-        userUid: user.userUid,
-      } as TypeMember);
       const batch = writeBatch(firestore);
       batch.update(docRef, {
         boardMembers: [

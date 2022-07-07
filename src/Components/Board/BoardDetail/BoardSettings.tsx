@@ -17,27 +17,20 @@ type props = {
 export const BoardSettings : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, user, setRefresh, history}= useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board, boardMembers} = useBoardContext();
+  const {board} = useBoardContext();
 
   const [name, setName] = useState(board.boardName);
   const [description, setDescription] = useState(board.boardDescription);
   const [visibility, setVisibility] = useState(board.boardVisibility);
 
   const refBoard = doc(firestore, Tables.Boards, board.uid as string);
-  const boardAdmins = boardMembers.filter((boardMember)=>{
-    if(boardMember.isAdmin) return true;
-    return false;
-  });
-  const boardAdminUids = boardAdmins.map((boardAdmin)=>{
-    return boardAdmin.userUid
-  })
 
 
   const onDelete = async ()=>{
     let deleteRequest = [...board.boardDeleteRequest, user.userUid];
     deleteRequest = uniq(deleteRequest);
-    const adminNotApproved = boardAdminUids.filter((adminUids)=>{
-      if(deleteRequest.includes(adminUids)) return false;
+    const adminNotApproved = board.boardAdmins.filter((adminUid)=>{
+      if(deleteRequest.includes(adminUid)) return false;
       return true;
     })
     if(adminNotApproved.length == 0){

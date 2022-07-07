@@ -24,8 +24,8 @@ const TaskList = styled.div`
 `;
 
 export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
-  const {firestore, setRefresh} = useGlobalContext();
-  const {board, userBoard} = useBoardContext();
+  const {firestore, setRefresh, user} = useGlobalContext();
+  const {board} = useBoardContext();
 
 
   const onDelete = async ()=>{
@@ -41,7 +41,7 @@ export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
       <IonCard className='ion-padding groupItem'>
         <IonCardTitle>
           {
-            userBoard ?
+            board.boardMembers.includes(user.userUid) ?
             (<IonButton onClick={onDelete}>
               <IonIcon icon={close}  style={{padding:'0 !important'}}/>
             </IonButton>) :
@@ -51,7 +51,7 @@ export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
         </IonCardTitle>
         <IonCardContent>
           {
-            userBoard ?
+            board.boardMembers.includes(user.userUid) ?
             <GroupCreateCard group={group}/> :
             null
           }

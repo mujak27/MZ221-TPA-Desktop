@@ -3,7 +3,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { close } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeMember, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
+import { Tables, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
 
 type props = {
 }
@@ -18,7 +18,7 @@ export const WorkspaceCreate : React.FC<props> = ({}) => {
 
   const onSubmitHandle = async () =>{
     try {
-      const refWorkspace = await addDoc(collection(firestore, Tables.Workspaces), {
+      await addDoc(collection(firestore, Tables.Workspaces), {
         workspaceName: workspaceName,
         workspaceDescription: workspaceDescription,
         workspaceVisibility: WorkspaceVisibility.Workspace,
@@ -27,12 +27,8 @@ export const WorkspaceCreate : React.FC<props> = ({}) => {
         workspaceDeleteRequest: [],
         workspaceLogs: [],
         workspaceBoardUids: [],
+        workspaceAdmins: [userUid],
       } as TypeWorkspace);
-      await addDoc(collection(firestore, Tables.Workspaces, refWorkspace.id, Tables.Members), {
-        userUid: userUid,
-        isAdmin: true,
-        isOwner: true,
-      } as TypeMember);
       setShowCreate(false);
     } catch (exception) {
       alert('failed : ' + exception);

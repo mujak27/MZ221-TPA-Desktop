@@ -15,10 +15,10 @@ type props = {
 }
 
 export const CardItem : React.FC<props> = ({cardUid, index}) => {
+  const {firestore, user} = useGlobalContext();
+  const {board} = useBoardContext();
+
   const [showDetail, setShowDetail] = useState(false);
-  const firestore = useGlobalContext().firestore;
-  const {board, userBoard} = useBoardContext();
-  // const [refItem, setRef] = useRef(ref);
 
   const refCard= doc(firestore, Tables.Boards, board.uid as string, Tables.Cards, cardUid);
   const {status: statusCard, data: resCard } = useFirestoreDocData(refCard, {
@@ -71,7 +71,7 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
               </IonItem>
             </IonCard>
             {
-              userBoard ?
+              board.boardMembers.includes(user.userUid) ?
               (
               <IonModal cssClass='sc-ion-modal-lg-s' isOpen={ showDetail} onDidDismiss={()=>{
                 setShowDetail(false);

@@ -74,19 +74,19 @@ export type TypeUser = {
   userInvitation : Array<TypeInvitation>
 }
 
-export enum KeyMember {
-  userUid = 'userUid',
-  isAdmin = 'isAdmin',
-  isOwner = 'isOwner',
-}
+// export enum KeyMember {
+//   userUid = 'userUid',
+//   isAdmin = 'isAdmin',
+//   isOwner = 'isOwner',
+// }
 
-export type TypeMember = {
-  uid? : string,
-  userUid : string,
-  isAdmin : boolean,
-  isOwner : boolean,
-  userName? : string
-}
+// export type TypeMember = {
+//   uid? : string,
+//   userUid : string,
+//   isAdmin : boolean,
+//   isOwner : boolean,
+//   userName? : string
+// }
 
 export enum KeyChecklist {
   checklistDone = 'checklistDone',
@@ -156,6 +156,7 @@ export enum KeyBoard {
   boardVisibility = 'boardVisibility',
   boardCreatedDate = 'boardCreatedDate',
   boardMembers = 'boardMembers',
+  boardAdmins = 'boardAdmins',
   boardWorkspaceUid = 'boardWorkspaceUid',
   boardFavoritedBy = 'boardFavoritedBy'
 }
@@ -168,6 +169,7 @@ export type TypeBoard = {
   boardVisibility : BoardVisibility
   boardCreatedDate : FieldValue
   boardMembers : Array<string>
+  boardAdmins: Array<string>
   boardGroupUids : Array<string>
   boardDeleteRequest : Array<string>
   boardLogs : Array<string>
@@ -190,6 +192,7 @@ export type TypeWorkspace = {
   workspaceVisibility : WorkspaceVisibility
   workspaceCreatedDate : number
   workspaceMembers : Array<string>
+  workspaceAdmins: Array<string>
   workspaceDeleteRequest : Array<string>
   workspaceLogs : Array<string>
   workspaceBoardUids: Array<string>

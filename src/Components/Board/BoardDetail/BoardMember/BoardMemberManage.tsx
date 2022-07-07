@@ -11,7 +11,7 @@ type props = {
 
 export const BoardMemberManage : React.FC<props> = ({})=>{
   const {user} = useGlobalContext();
-  const {boardMembers} = useBoardContext();
+  const {board} = useBoardContext();
 
   return (
     <>
@@ -20,9 +20,9 @@ export const BoardMemberManage : React.FC<props> = ({})=>{
       </IonListHeader>
       <IonList>
         {
-          boardMembers.map((boardMember)=>{
-            if (boardMember.userUid == user.userUid) return null;
-            return (<BoardMemberItem key={nanoid()} member={boardMember} userUid={boardMember.userUid} />);
+          board.boardMembers.map((boardMember)=>{
+            if (boardMember == user.userUid) return null;
+            return (<BoardMemberItem key={nanoid()} memberUid={boardMember} />);
           })
         }
       </IonList>

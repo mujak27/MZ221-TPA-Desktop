@@ -15,8 +15,8 @@ type props = {
 
 export const BoardMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemRef}) => {
   const {firestore} = useGlobalContext();
-  const {workspaceMembers} = useWorkspaceContext();
   const {board} = useBoardContext();
+  const {workspace} = useWorkspaceContext();
 
   const refUsers = collection(firestore, Tables.Users );
   const {status: statusUsers, data: resUsers} = useFirestoreCollectionData(query(
@@ -33,23 +33,20 @@ export const BoardMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemR
     return <>not found</>;
   }
 
-  const user = (resUsers as Array<TypeUser>)[0];
-  const invited = board.boardMembers.includes(user.uid as string);
+  const newUser = (resUsers as Array<TypeUser>)[0];
+  const invited = board.boardMembers.includes(newUser.uid as string);
 
-
-  if(workspaceMembers.filter(workspaceMember=>{
-    return workspaceMember.userUid == user.userUid
-  }).length == 0){
+  if(!workspace.workspaceMembers.includes(newUser.userUid)){
     // not member of the workspace
-    return <>invite user {user.userName} to workspace first to join the board</>;
+    return <>invite user {newUser.userName} to workspace first to join the board</>;
   }
 
   const onInviteHandle = async () => {
     const batch = writeBatch(firestore);
-    const refUser = doc(firestore, Tables.Users, user.uid as string);
+    const refUser = doc(firestore, Tables.Users, newUser.uid as string);
     batch.update(refUser, {
       userInvitation: [
-        ...user.userInvitation,
+        ...newUser.userInvitation,
         {
           itemUid: itemUid,
           invitationType: EnumItemType.Board,
@@ -63,7 +60,7 @@ export const BoardMemberGetEmail : React.FC<props> = ({userEmail, itemUid, itemR
 
   return (
     <>
-      {user.userName}
+      {newUser.userName}
       {
         !invited ?
         <IonButton onClick={onInviteHandle}>invite</IonButton>:

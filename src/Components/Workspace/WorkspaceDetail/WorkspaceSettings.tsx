@@ -16,7 +16,7 @@ type props = {
 
 export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, user, setRefresh}= useGlobalContext();
-  const {workspace, workspaceMembers: members} = useWorkspaceContext();
+  const {workspace} = useWorkspaceContext();
   const {history} = useGlobalContext();
 
   const [name, setName] = useState(workspace.workspaceName);
@@ -24,13 +24,6 @@ export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) =
   const [visibility, setVisibility] = useState(workspace.workspaceVisibility);
 
   const refWorkspace = doc(firestore, Tables.Workspaces, workspace.uid as string);
-  const admins = members.filter((member)=>{
-    if(member.isAdmin) return true;
-    return false;
-  });
-  const adminUids = admins.map((member)=>{
-    return member.userUid
-  })
 
   const refBoards = collection(firestore, Tables.Boards);
   const {status : statusBoards, data : resBoards} = useFirestoreCollectionData(query(
@@ -47,9 +40,9 @@ export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) =
 
   const onDelete = async ()=>{
     let deleteRequest = [...workspace.workspaceDeleteRequest, user.userUid];
-    deleteRequest = uniq(deleteRequest);
-    const adminNotApproved = adminUids.filter((adminUids)=>{
-      if(deleteRequest.includes(adminUids)) return false;
+    deleteRequest = uniq(deleteRequest); 
+    const adminNotApproved = workspace.workspaceAdmins.filter((adminUid)=>{
+      if(deleteRequest.includes(adminUid)) return false;
       return true;
     })
     if(adminNotApproved.length == 0){
@@ -58,7 +51,8 @@ export const WorkspaceSettings : React.FC<props> = ({showModal, setShowModal}) =
       boards.forEach((board)=>{
         const refBoard = doc(firestore, Tables.Boards, board.uid as string);
         batch.update(refBoard, {
-          boardStatus: BoardStatus.Close
+          boardStatus: BoardStatus.Close,
+          boardWorkspaceUid: '',
         } as TypeBoard)
         console.info(board.boardName + ' closed');
       })

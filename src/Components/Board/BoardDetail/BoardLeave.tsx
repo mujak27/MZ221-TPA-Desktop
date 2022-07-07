@@ -14,8 +14,8 @@ type props = {
 
 export const BoardLeave : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh, user, history} = useGlobalContext();
-  const {workspace, workspaceMembers: members} = useWorkspaceContext();
-  const {board, userBoard} = useBoardContext();
+  const {workspace} = useWorkspaceContext();
+  const {board} = useBoardContext();
   
   const onLeave = async ()=>{
     let newMemberUids = Array.from(board.boardMembers).filter((memberUid)=>{
@@ -30,18 +30,14 @@ export const BoardLeave : React.FC<props> = ({showModal, setShowModal}) => {
       return;
     }
 
-    let memberNotAdmin = Array.from(members);
-    memberNotAdmin = memberNotAdmin.filter((member)=>{
-      return !((member.userUid == user.userUid) || member.isAdmin)
+    let memberNotAdmin = Array.from(board.boardMembers).filter((member)=>{
+      return (member != user.userUid && !board.boardAdmins.includes(member))
     })
     if(memberNotAdmin.length > 0){
       alert('you are the last admin!, set anyone as admin or just delete the board');
       return;
     }
 
-
-    const refMember = doc(firestore, Tables.Boards, board.uid as string,  Tables.Members, userBoard.uid as string);
-    deleteDoc(refMember);
     const batch = writeBatch(firestore);
     const cardRef = doc(firestore, Tables.Boards, board.uid as string);
     batch.update(cardRef, {

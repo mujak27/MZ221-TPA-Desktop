@@ -1,19 +1,18 @@
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle } from '@ionic/react';
 import { nanoid } from 'nanoid';
 import React from 'react';
-import { useGlobalContext } from '../../context/ContextProvider';
-import { TypeBoard } from '../../Model/model';
+import { useGlobalContext } from '../../../context/ContextProvider';
+import { TypeBoard } from '../../../Model/model';
 
 type props = {
   board : TypeBoard
 }
 
-export const BoardItem : React.FC<props> = ({board}) => {
+export const BoardClosedItem : React.FC<props> = ({board}) => {
   const {setRefresh, history} = useGlobalContext();
 
   const onClickHandle = ()=>{
-    console.log('clicked');
-    const url = `/workspace/${board.boardWorkspaceUid}/board/${board.uid}`;
+    const url = `/board/closed/${board.uid as string}`;
     setRefresh(true);
     history.push(url);
   };

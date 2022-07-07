@@ -1,14 +1,12 @@
-import { collection, doc, query } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import React, { createContext, useContext } from 'react';
 import { useParams } from 'react-router';
-import { useFirestoreCollectionData, useFirestoreDocData } from 'reactfire';
+import { useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { Tables, TypeMember, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
+import { Tables, TypeWorkspace, WorkspaceVisibility } from '../../Model/model';
 
 type TypeWorkspaceContext = {
   workspace : TypeWorkspace,
-  userWorkspace : TypeMember,
-  workspaceMembers : Array<TypeMember>,
 }
 
 let workspaceContext = createContext<TypeWorkspaceContext>({
@@ -21,13 +19,8 @@ let workspaceContext = createContext<TypeWorkspaceContext>({
     workspaceDeleteRequest: [],
     workspaceLogs: [],
     workspaceBoardUids: [], 
+    workspaceAdmins: [],
   } as TypeWorkspace,
-  userWorkspace: {
-    isAdmin: false,
-    isOwner: false,
-    userUid: '',
-  } as TypeMember,
-  workspaceMembers : [],
 });
 
 export const useWorkspaceContext = ()=>{
@@ -50,15 +43,7 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
     idField: 'uid',
   });
 
-  const refMember = collection(firestore, Tables.Workspaces, workspaceUid, Tables.Members);
-  const {status: statusMember, data: resMembers} = useFirestoreCollectionData(query(
-      refMember,
-  ), {
-    idField: 'uid'
-  });
-
-
-  if (statusWorkspace === 'loading' || statusMember === 'loading') {
+  if (statusWorkspace === 'loading' ) {
     return <div>checking authorization...</div>;
   }
 
@@ -68,11 +53,8 @@ export const WorkspaceContext : React.FC<props> = ({children}) => {
 
 
   const workspace = resWorkspace as TypeWorkspace;
-  const members = (resMembers as Array<TypeMember>);
-  const userWorkspace = members.filter((member)=>{
-    return member.userUid==(user.userUid)
-  })[0];
-  workspaceContext = createContext<TypeWorkspaceContext>({workspace, userWorkspace: userWorkspace, workspaceMembers: members });
+
+  workspaceContext = createContext<TypeWorkspaceContext>({workspace});
 
   if(workspace.workspaceVisibility == WorkspaceVisibility.Workspace && !workspace.workspaceMembers.includes(user.userUid))
     return <>you do not have the access to this workspace..</>

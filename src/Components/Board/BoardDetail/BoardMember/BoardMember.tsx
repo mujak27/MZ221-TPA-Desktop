@@ -1,8 +1,8 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonIcon, IonItem, IonModal, IonRow, IonTitle } from '@ionic/react';
 import { closeCircle, peopleCircle } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { WorkspaceMemberManage } from '../../../Workspace/WorkspaceDetail/WorkspaceMember/WorkspaceMemberManage';
 import { BoardMemberInvite } from './BoardMemberInvite';
+import { BoardMemberManage } from './BoardMemberManage';
 
 type props = {
   showModal : boolean,
@@ -51,7 +51,7 @@ export const BoardMember : React.FC<props> = ({showModal, setShowModal}) => {
               </>
             ):(
               <>
-                <WorkspaceMemberManage />
+                <BoardMemberManage />
               </>
             )
           }

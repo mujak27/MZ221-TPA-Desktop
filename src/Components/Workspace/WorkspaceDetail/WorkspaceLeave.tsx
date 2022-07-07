@@ -1,9 +1,10 @@
 import { IonButton, IonIcon, IonItem, IonModal, IonTitle } from '@ionic/react';
-import { deleteDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/firestore';
 import { checkmarkCircle, closeCircle, exit } from 'ionicons/icons';
 import React from 'react';
+import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../../context/ContextProvider';
-import { Tables, TypeWorkspace } from '../../../Model/model';
+import { BoardStatus, KeyBoard, Tables, TypeBoard, TypeWorkspace } from '../../../Model/model';
 import { useWorkspaceContext } from '../WorkspaceContext';
 
 type props = {
@@ -13,8 +14,21 @@ type props = {
 
 export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
   const {firestore, setRefresh, user, history} = useGlobalContext();
-  const {workspace, userWorkspace: currentUser, workspaceMembers: members} = useWorkspaceContext();
+  const {workspace} = useWorkspaceContext();
   
+
+  const refBoards = collection(firestore, Tables.Boards);
+  const {status : statusBoards, data : resBoards} = useFirestoreCollectionData(query(
+      refBoards, 
+      where(KeyBoard.boardWorkspaceUid, '==', workspace.uid as string)
+      ), {
+    idField: 'uid'
+  })
+
+  if(statusBoards === 'loading') return <>fetching data...</>
+
+  const boards = resBoards as Array<TypeBoard>
+
   const onLeave = async ()=>{
     console.info('my uid');
     console.info(user.userUid);
@@ -28,15 +42,25 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
     });
     if(newMemberUids.length == 0){
       deleteDoc(doc(firestore, Tables.Workspaces, workspace.uid as string));
+
+      const batch = writeBatch(firestore);
+      boards.forEach((board)=>{
+        const refBoard = doc(firestore, Tables.Boards, board.uid as string);
+        batch.update(refBoard, {
+          boardStatus: BoardStatus.Close,
+          boardWorkspaceUid: '',
+        } as TypeBoard)
+        console.info(board.boardName + ' closed');
+      })
+      batch.commit();
       alert('leave and deleted');
       return;
     }
     console.info('member besides curr')
     console.info(newMemberUids);
 
-    let memberNotAdmin = Array.from(members);
-    memberNotAdmin = memberNotAdmin.filter((member)=>{
-      return !((member.userUid == user.userUid) || member.isAdmin)
+    let memberNotAdmin = Array.from(workspace.workspaceMembers).filter((member)=>{
+      return (member != user.userUid && !workspace.workspaceAdmins.includes(member))
     })
     console.info('member besides me not admin');
     console.info(memberNotAdmin);
@@ -45,8 +69,6 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
       return;
     }
 
-    const refMember = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Members, currentUser.uid as string);
-    deleteDoc(refMember);
     const batch = writeBatch(firestore);
     const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string);
     batch.update(cardRef, {
@@ -58,6 +80,7 @@ export const WorkspaceLeave : React.FC<props> = ({showModal, setShowModal}) => {
       ]
     } as TypeWorkspace);
     await batch.commit();
+
     alert('success left')
     setRefresh(true);
     history.push('/workspace');

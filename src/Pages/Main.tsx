@@ -6,6 +6,7 @@ import { useSigninCheck } from 'reactfire';
 import { Navbar } from '../Components/Navigations/Navbar';
 import { SideNav } from '../Components/Navigations/SideNav';
 import { ContextProvider } from '../context/ContextProvider';
+import { Board } from './Board';
 import { Home } from './Home';
 import { Join } from './Join';
 import { Profile } from './User';
@@ -44,6 +45,7 @@ const Main = () => {
               <Route path='/profile/:profileId' component={Profile} exact={true} />
               <Route path='/join/:joinId' component={Join} exact={true}/>
               <Route path='/workspace' component={Workspace} />
+              <Route path='/board' component={Board} />
               <Route component={Home} exact={true} />
             </IonRouterOutlet>
           </IonReactRouter>

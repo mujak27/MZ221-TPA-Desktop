@@ -1,46 +1,43 @@
 import { IonButton, IonItem } from '@ionic/react';
-import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/firestore';
+import { collection, doc, query, where, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
 import { useGlobalContext } from '../../../../context/ContextProvider';
-import { KeyUser, Tables, TypeBoard, TypeMember, TypeUser } from '../../../../Model/model';
-import { useWorkspaceContext } from '../../../Workspace/WorkspaceContext';
+import { KeyUser, Tables, TypeBoard, TypeUser } from '../../../../Model/model';
 import { useBoardContext } from '../../BoardContext';
 
 type props = {
-  member : TypeMember,
-  userUid : string,
+  memberUid : string,
 }
 
-export const BoardMemberItem : React.FC<props> = ({member, userUid})=>{
+export const BoardMemberItem : React.FC<props> = ({memberUid})=>{
   const {firestore} = useGlobalContext();
-  const {workspace} = useWorkspaceContext();
   const {board} = useBoardContext();
-
-
-  const refUsers = collection(firestore, Tables.Users);
-  const {status: statusUsers, data: resUsers} = useFirestoreCollectionData(query(
-      refUsers,
-      where(KeyUser.userUid, '==', userUid),
+  
+  const refBoard = doc(firestore, Tables.Boards, board.uid as string);
+  
+  const refMember = collection(firestore, Tables.Users);
+  const {status: statusMembers, data: resMembers} = useFirestoreCollectionData(query(
+      refMember,
+      where(KeyUser.userUid, '==', memberUid),
   ), {
     idField: 'uid',
   });
 
-  if (statusUsers === 'loading') {
+  if (statusMembers === 'loading') {
     return <IonItem>retrieving data...</IonItem>;
   }
 
-  const user = (resUsers as Array<TypeUser>)[0];
+  const member = (resMembers as Array<TypeUser>)[0];
 
   const onKickHandle = async ()=>{
     try {
-      await deleteDoc(doc(firestore, Tables.Boards, board.uid as string, Tables.Members, member.uid as string));
-      const refBoard = doc(firestore, Tables.Boards, board.uid as string);
+      // await deleteDoc(doc(firestore, Tables.Boards, board.uid as string, Tables.Members, member.uid as string));
       const batch = writeBatch(firestore);
       batch.update(refBoard, {
         boardMembers:
-          board.boardMembers.filter((memberUid)=>{
-            if (memberUid == member.userUid as string) return false;
+          board.boardMembers.filter((member)=>{
+            if (member == memberUid as string) return false;
             return true;
           }),
       } as TypeBoard);
@@ -54,11 +51,12 @@ export const BoardMemberItem : React.FC<props> = ({member, userUid})=>{
 
   const onSetAdminHandle = async ()=>{
     try {
+      const newBoardAdmins = Array.from(board.boardAdmins);
+      newBoardAdmins.push(memberUid);
       const batch = writeBatch(firestore);
-      const refMember = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Members, member.uid as string);
-      batch.update(refMember, {
-        isAdmin: true,
-      } as TypeMember);
+      batch.update(refBoard,{
+        boardAdmins: newBoardAdmins,
+      } as TypeBoard)
       await batch.commit();
       alert('success');
     } catch (e) {
@@ -66,16 +64,32 @@ export const BoardMemberItem : React.FC<props> = ({member, userUid})=>{
     }
   };
 
+
+  const onRevokeAdminHandle = async ()=>{
+    try {
+      const batch = writeBatch(firestore);
+      const newBoardAdmins = Array .from(board.boardAdmins).filter((admin)=> {return admin!=memberUid});
+      batch.update(refBoard, {
+        boardAdmins : newBoardAdmins,
+      } as TypeBoard);
+      await batch.commit();
+      alert('success');
+    } catch (e) {
+      alert(e);
+    }
+  }
+
+
   return (
     <IonItem>
-      {user.userName}
-      {!member.isAdmin ?
+      {member.userName}
+      {!board.boardAdmins.includes(memberUid) ?
         (
           <>
             <IonButton color='danger' onClick={onKickHandle}>kick</IonButton>
             <IonButton color='primary' onClick={onSetAdminHandle}>set admin</IonButton>
           </>
-            ) : <IonButton disabled color='medium'>admin</IonButton>
+            ) : <IonButton color='danger' onClick={onRevokeAdminHandle}>revoke</IonButton>
       }
     </IonItem>
   );

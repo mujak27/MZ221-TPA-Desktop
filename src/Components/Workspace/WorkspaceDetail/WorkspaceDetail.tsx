@@ -15,8 +15,8 @@ type props = {
 }
 
 export const WorkspaceDetail : React.FC<props> = () => {
-  const {setRefresh, history} = useGlobalContext();
-  const {workspace, userWorkspace} = useWorkspaceContext();
+  const {setRefresh, history, user} = useGlobalContext();
+  const {workspace} = useWorkspaceContext();
   const [showSettings, setShowSettings] = useState(false);
   const [showMember, setShowMember] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
@@ -39,11 +39,12 @@ export const WorkspaceDetail : React.FC<props> = () => {
           </IonTitle>
           <WorkspaceLogs showModal={showLogs} setShowModal={setShowLogs} />
           {
-            userWorkspace ?
+            workspace.workspaceMembers.includes(user.userUid) ?
             <WorkspaceLeave showModal={showLeave} setShowModal={setShowLeave} /> :
             null
           }
-          {userWorkspace && userWorkspace.isAdmin ?
+          {
+            workspace.workspaceAdmins.includes(user.userUid) ?
             (
               <>
                 <WorkspaceMember showModal={showMember} setShowModal={setShowMember} />

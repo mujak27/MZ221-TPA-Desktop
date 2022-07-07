@@ -17,21 +17,24 @@ type props = {
 
 export const WorkspaceBoards : React.FC<props> = ({}) => {
   const {firestore, user} = useGlobalContext();
-  const {workspace, userWorkspace} = useWorkspaceContext();
+  const {workspace} = useWorkspaceContext();
 
   const refBoard = collection(firestore, Tables.Boards);
   const {status: statusPrivBoard, data: resPrivBoards} = useFirestoreCollectionData(query(refBoard,
+    where(KeyBoard.boardWorkspaceUid, '==', workspace.uid as string),
       where(KeyBoard.boardMembers, 'array-contains', user.userUid),
   ), {
     idField: 'uid',
   });
   const {status: statusPublicBoard, data: resPublicBoards} = useFirestoreCollectionData(query(refBoard,
-      where(KeyBoard.boardVisibility, '==', BoardVisibility.Public),
+    where(KeyBoard.boardWorkspaceUid, '==', workspace.uid as string),
+    where(KeyBoard.boardVisibility, '==', BoardVisibility.Public),
   ), {
     idField: 'uid',
   });
 
   const {status: statusWorkspaceBoard, data: resWorkspaceBoards} = useFirestoreCollectionData(query(refBoard,
+    where(KeyBoard.boardWorkspaceUid, '==', workspace.uid as string),
       where(KeyBoard.boardVisibility, '==', BoardVisibility.Workspace),
   ), {
     idField: 'uid',
@@ -95,7 +98,7 @@ export const WorkspaceBoards : React.FC<props> = ({}) => {
         </IonTitle>
       </IonItem>
       {
-        workspace.workspaceVisibility == WorkspaceVisibility.Public && !userWorkspace ?
+        workspace.workspaceVisibility == WorkspaceVisibility.Public && !workspace.workspaceMembers.includes(user.userUid) ?
         null :
         <WorkspaceCreateBoard/>
       }
