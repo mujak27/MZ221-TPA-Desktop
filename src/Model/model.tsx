@@ -74,20 +74,6 @@ export type TypeUser = {
   userInvitation : Array<TypeInvitation>
 }
 
-// export enum KeyMember {
-//   userUid = 'userUid',
-//   isAdmin = 'isAdmin',
-//   isOwner = 'isOwner',
-// }
-
-// export type TypeMember = {
-//   uid? : string,
-//   userUid : string,
-//   isAdmin : boolean,
-//   isOwner : boolean,
-//   userName? : string
-// }
-
 export enum KeyChecklist {
   checklistDone = 'checklistDone',
   checklistName = 'checklistName',

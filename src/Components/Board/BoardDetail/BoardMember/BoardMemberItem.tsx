@@ -32,7 +32,6 @@ export const BoardMemberItem : React.FC<props> = ({memberUid})=>{
 
   const onKickHandle = async ()=>{
     try {
-      // await deleteDoc(doc(firestore, Tables.Boards, board.uid as string, Tables.Members, member.uid as string));
       const batch = writeBatch(firestore);
       batch.update(refBoard, {
         boardMembers:

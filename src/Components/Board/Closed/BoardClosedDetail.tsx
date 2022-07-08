@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonHeader, IonItem, IonTitle } from '@ionic/react';
-import { collection, doc, query, where, writeBatch } from 'firebase/firestore';
+import { collection, deleteDoc, doc, query, where, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { Redirect, useParams } from 'react-router';
 import { useFirestoreCollectionData, useFirestoreDocData } from 'reactfire';
@@ -62,6 +62,12 @@ export const BoardClosedDetail : React.FC<props> = ({}) => {
     setRefresh(true);
   }
 
+  const onPermanentClose = ()=>{
+    deleteDoc(refBoard);
+    history.push('/board');
+    setRefresh(true);
+  }
+
   return (
     <>
       <IonHeader>
@@ -82,6 +88,8 @@ export const BoardClosedDetail : React.FC<props> = ({}) => {
             )
           })
         }
+        or permanently closed this board
+        <IonButton onClick={onPermanentClose}>Permanent Close</IonButton>
       </IonContent>
     </>
   );
