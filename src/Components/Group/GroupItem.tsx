@@ -15,6 +15,7 @@ import { GroupCreateCard } from './GroupCreateCard';
 type props = {
   group : TypeGroup
   groupIndex : string
+  filter : string
 }
 
 
@@ -23,7 +24,7 @@ const Container = styled.div`
 const TaskList = styled.div`
 `;
 
-export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
+export const GroupItem : React.FC<props> = ({filter, group, groupIndex: index}) => {
   const {firestore, setRefresh, user} = useGlobalContext();
   const {board} = useBoardContext();
 
@@ -61,7 +62,7 @@ export const GroupItem : React.FC<props> = ({group, groupIndex: index}) => {
                 <TaskList ref={provided.innerRef} {...provided.droppableProps} >
                   {group.groupCardUids.map((cardUid, cardIndex)=>{
                     return (
-                      <CardItem key={nanoid()} cardUid={cardUid} index={cardIndex}/>
+                      <CardItem filter={filter} key={nanoid()} cardUid={cardUid} index={cardIndex}/>
                     );
                   })}
                 </TaskList>

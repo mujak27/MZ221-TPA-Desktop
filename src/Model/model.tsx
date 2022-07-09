@@ -11,6 +11,12 @@ export enum Tables {
   InvitationLink = 'InvitationLink',
   Comments = 'Comments',
   Notifications = 'Notifications',
+  Tags = 'Tags',
+}
+
+export type TypeTag = {
+  uid? : string
+  TagName : string,
 }
 
 export enum Key {
@@ -119,6 +125,7 @@ export type TypeCard = {
   cardChecklists : Array<TypeCheckList>
   cardWatchers : Array<string>
   cardDate : number
+  cardTagUids : Array<string>
 };
 
 export enum KeyGroup {
@@ -161,6 +168,7 @@ export type TypeBoard = {
   boardLogs : Array<string>
   boardWorkspaceUid : string
   boardFavoritedBy : Array<string>
+  boardTagUids : Array<string>
 }
 
 export enum KeyWorkspace {

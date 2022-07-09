@@ -1,3 +1,4 @@
+import { IonItem, IonTitle } from '@ionic/react';
 import { collection, query, where } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreCollectionData } from 'reactfire';
@@ -25,12 +26,15 @@ const Home = () => {
 
   return (
     <div>
-      this is home
-      {
-        favBoards.map((favBoard)=>{
-          return <BoardItem board={favBoard} />
-        })
-      }
+      <IonTitle size='large'>home</IonTitle>
+      <IonItem>
+        <IonTitle>Favorited boards</IonTitle>
+        {
+          favBoards.map((favBoard)=>{
+            return <BoardItem board={favBoard} />
+          })
+        }
+      </IonItem>
     </div>
   );
 };

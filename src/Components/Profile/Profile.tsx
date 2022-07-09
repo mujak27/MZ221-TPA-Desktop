@@ -16,12 +16,14 @@ const Profile = () => {
 
   const onSave = async ()=>{
     const batch = writeBatch(firestore);
-    const refStorage = ref(storage, `${user.userUid}/${(imageFile as File).name}`)
-    const metadata = {contentType : 'profile pic'}
-
-    await uploadBytes(refStorage, imageFile as File, metadata);
-    const url = await getDownloadURL(refStorage);
-    console.info(url);
+    let url = user.userImageLink;
+    if(imageFile != null){
+      const refStorage = ref(storage, `${user.userUid}/${(imageFile as File).name}`)
+      const metadata = {contentType : 'profile pic'}
+  
+      await uploadBytes(refStorage, imageFile as File, metadata);
+      url = await getDownloadURL(refStorage);
+    }
       
       
     const refUser = doc(firestore, Tables.Users, user.uid as string);

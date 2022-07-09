@@ -1,4 +1,4 @@
-import { IonButton, IonCheckbox, IonContent, IonHeader, IonItem, IonText, IonTitle } from '@ionic/react';
+import { IonButton, IonCheckbox, IonContent, IonHeader, IonInput, IonItem, IonText, IonTitle } from '@ionic/react';
 import { doc, DocumentReference, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import React, { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ import { BoardLeave } from './BoardLeave';
 import { BoardLogs } from './BoardLogs';
 import { BoardMember } from './BoardMember/BoardMember';
 import { BoardSettings } from './BoardSettings';
+import { BoardTags } from './BoardTags';
 
 type props = {
 }
@@ -23,14 +24,15 @@ type props = {
 export const BoardDetail : React.FC<props> = ({}) => {
   const {firestore, history, setRefresh, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board, refBoard} = useBoardContext();
-  const {groups: groupContext } = useBoardContext();
+  const {board, refBoard, selectedTags} = useBoardContext();
+  const {groups: groupContext} = useBoardContext();
 
   enum tabs {
     Kanban = 'Kanban',
     Calendar = 'Calendar',
   }
 
+  const [filter, setFilter] = useState('');
   const [fav, setFav] = useState(board.boardFavoritedBy && board.boardFavoritedBy.includes(user.userUid));
   const [tab, setTab] = useState(tabs.Kanban);
   const [showMember, setShowMember] = useState(false);
@@ -46,8 +48,11 @@ export const BoardDetail : React.FC<props> = ({}) => {
   }));
 
 
-  useEffect(()=>{
-  }, [groups]);
+
+  // useEffect(()=>{
+    
+  // },  gs])
+
 
   if(board == undefined){
     history.push('/workspace');
@@ -138,6 +143,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
     console.info('updated');
   }
 
+
   return (
     <>
       <IonHeader>
@@ -169,13 +175,20 @@ export const BoardDetail : React.FC<props> = ({}) => {
         </IonItem>
       </IonHeader>
       <IonContent className='groupParentContainer'>
-        <IonTitle><h3>Description</h3></IonTitle>
-        <IonText className='ion-padding-start'>{board.boardDescription}</IonText>
+        <IonItem>
+          <IonTitle><h3>Description</h3></IonTitle>
+          <IonText className='ion-padding-start'>{board.boardDescription}</IonText>
+        </IonItem>
+        <IonItem>
+          <IonTitle>Filter Card & list By name :</IonTitle>
+          <IonInput type='text' value={filter} onIonChange={(e)=>{setFilter(e.detail.value as string)}} />
+        </IonItem>
         <IonItem>
           <IonTitle>View mode : </IonTitle>
           <IonButton onClick={()=>setTab(tabs.Kanban)}>kanban</IonButton>
           <IonButton onClick={()=>setTab(tabs.Calendar)}>calendar</IonButton>
         </IonItem>
+        <BoardTags />
         {
           tab == tabs.Kanban ?
           (
@@ -184,7 +197,7 @@ export const BoardDetail : React.FC<props> = ({}) => {
                 {
                   groups.map((group, groupIndex)=>{
                     return (
-                      <GroupItem key={nanoid()} group={group} groupIndex={groupIndex.toString()} />
+                      <GroupItem filter={filter} key={nanoid()} group={group} groupIndex={groupIndex.toString()} />
                     )
                   })
                 }

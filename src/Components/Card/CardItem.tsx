@@ -1,6 +1,6 @@
 import { IonCard, IonItem, IonModal, IonTitle } from '@ionic/react';
 import { doc } from 'firebase/firestore';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useFirestoreDocData } from 'reactfire';
 import styled from 'styled-components';
@@ -12,11 +12,12 @@ import { CardDetail } from './CardDetail';
 type props = {
   cardUid : string
   index : number
+  filter : string
 }
 
-export const CardItem : React.FC<props> = ({cardUid, index}) => {
+export const CardItem : React.FC<props> = ({filter, cardUid, index}) => {
   const {firestore, user} = useGlobalContext();
-  const {board} = useBoardContext();
+  const {board, selectedTags} = useBoardContext();
 
   const [showDetail, setShowDetail] = useState(false);
 
@@ -32,6 +33,10 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
   const closeDetail = ()=>{
     setShowDetail(false);
   };
+
+  useEffect(()=>{
+    console.info('selected tags changed');
+  }, [selectedTags]);
 
 
   const Container = styled.div`
@@ -53,9 +58,21 @@ export const CardItem : React.FC<props> = ({cardUid, index}) => {
 
   if(!resCard) return null;
 
-
+  
+  
   const card = resCard as TypeCard;
-
+  
+  console.info('card rerendered');
+  
+  if(!card.cardTitle.includes(filter))return null;
+  let valid = true;
+  selectedTags.forEach((selectedTag)=>{
+    if(!(card.cardTagUids.includes(selectedTag.uid as string))) valid = false;
+  })
+  console.info('check' + card.cardTitle);
+  console.info(selectedTags)
+  console.info(card.cardTagUids);
+  if(!valid) return null
 
   return (
     <Draggable draggableId={card.uid as string} index={index}>

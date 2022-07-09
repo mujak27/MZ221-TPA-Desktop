@@ -33,6 +33,7 @@ const WorkspaceCreateBoard : React.FC<props> = ({}) => {
         boardDeleteRequest: [],
         boardWorkspaceUid: workspace.uid,
         boardFavoritedBy: [],
+        boardTagUids: [],
       } as TypeBoard);
       setShowCreate(false);
     } catch (exception) {

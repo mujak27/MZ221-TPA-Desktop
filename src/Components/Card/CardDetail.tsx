@@ -8,6 +8,7 @@ import { useBoardContext } from '../Board/BoardContext';
 import { useWorkspaceContext } from '../Workspace/WorkspaceContext';
 import { CardChecklists } from './CardChecklists';
 import { CardComments } from './CardComment';
+import { CardTags } from './CardDetail/CardTags';
 
 type props = {
   card : TypeCard
@@ -16,22 +17,19 @@ type props = {
 
 export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
   const {firestore, user, setRefresh} = useGlobalContext();
+  const {workspace} = useWorkspaceContext();
+  const {board, selectedTags} = useBoardContext();
+
   const [title, setTitle] = useState(card.cardTitle);
   const [description, setDescription] = useState(card.cardDescription);
   const [checklists, setChecklists] = useState(card.cardChecklists);
   const [date, setDate] = useState(card.cardDate);
   const [watch, setWatch] = useState(card.cardWatchers.includes(user.uid as string));
-  const {workspace} = useWorkspaceContext();
-  const {board} = useBoardContext();
+  const [cardTagUids, setCardTagUids] = useState(card.cardTagUids);
 
   useEffect(()=>{
-    console.log('checklists changed');
-    console.log(checklists);
-  }, [checklists]);
+  }, [checklists, selectedTags]);
 
-  console.info(date);
-  console.info(new Date(date));
-  console.info((new Date(date)).toISOString().substring(0,10));
 
   const onSaveHandle = async () => {
     try {
@@ -44,15 +42,16 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
           if(cardWatcher == user.uid as string) return false;
           return true;
         })
-  }
+      }
       const batch = writeBatch(firestore);
-      const cardRef = doc(firestore, Tables.Workspaces, workspace.uid as string, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string);
+      const cardRef = doc(firestore, Tables.Boards, board.uid as string, Tables.Cards, card.uid as string);
       batch.update(cardRef, {
         cardTitle: title,
         cardDescription: description,
         cardChecklists: checklists,
         cardWatchers: cardWatchers,
         cardDate : date,
+        cardTagUids : cardTagUids,
       } as TypeCard);
       await batch.commit();
       exitHandle();
@@ -107,11 +106,11 @@ export const CardDetail : React.FC<props> = ({card, exitHandle}) => {
             onIonChange={(e)=>setDate(new Date((e.detail.value as string)).getTime())} 
             />
         </IonItem>
-
         <IonItem>
           <IonCheckbox checked={watch} onIonChange={(e)=>{setWatch(e.detail.checked)}} />
           <IonLabel className='ion-padding-horizontal'>watch this card</IonLabel>
         </IonItem>
+        <CardTags cardTagUids={cardTagUids} setCardTagUids={setCardTagUids}/>
         <CardChecklists card={card} checklists={checklists} setChecklists={setChecklists}/>
         <CardComments card={card} />
       </IonContent>

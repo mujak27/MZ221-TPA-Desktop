@@ -1,12 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
-import { collection, Firestore, getFirestore, query } from 'firebase/firestore';
+import { collection, Firestore, getFirestore, query, where } from 'firebase/firestore';
 import { FirebaseStorage, getStorage } from 'firebase/storage';
+import { union, uniqBy } from 'lodash';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useFirestore, useFirestoreCollectionData, useStorage } from 'reactfire';
 import { firebaseConfig } from '../Model/firebase';
-import { enumNotifFreq, Tables, TypeNotification, TypeUser } from '../Model/model';
+import { enumNotifFreq, KeyWorkspace, Tables, TypeNotification, TypeUser, TypeWorkspace, WorkspaceVisibility } from '../Model/model';
 
 type typeGlobalContext = {
   auth : Auth,
@@ -17,7 +18,8 @@ type typeGlobalContext = {
   setRefresh : React.Dispatch<React.SetStateAction<boolean>>,
   history: any,
   storage: FirebaseStorage,
-  notifications : Array<TypeNotification>
+  notifications : Array<TypeNotification>,
+  workspaces : Array<TypeWorkspace>
 }
 
 let globalContext = createContext<typeGlobalContext>({
@@ -39,6 +41,7 @@ let globalContext = createContext<typeGlobalContext>({
   history: null,
   storage: getStorage(initializeApp(firebaseConfig)),
   notifications : [],
+  workspaces: [],
 });
 
 export const useGlobalContext = ()=>useContext(globalContext);
@@ -55,6 +58,11 @@ export const ContextProvider = ({children }: props)=>{
   const [refresh, setRefresh] = useState(false);
   const history = useHistory();
   
+  const doRefresh = (x : boolean)=>{
+    setRefresh(x);
+    setRefresh(!x);
+  }
+
   const userDataRef = collection(firestore, Tables.Users);
   const {status: statusUsers, data: resUsers} = useFirestoreCollectionData(query(userDataRef), {
     idField: 'uid'
@@ -65,9 +73,34 @@ export const ContextProvider = ({children }: props)=>{
     idField : 'uid'
   });
 
-    useEffect(()=>{
+  useEffect(()=>{
     console.info('refreshed');
+    // if(refresh) setRefresh(false);
   }, [refresh]);
+
+
+
+
+  const refWorkspace = collection(firestore, Tables.Workspaces);
+  const {status: statusPrivateWorkspace, data: resPrivateWorkspaces} = useFirestoreCollectionData(query(refWorkspace,
+      where(KeyWorkspace.workspaceMembers, 'array-contains', userUid),
+  ), {
+    idField: 'uid',
+  });
+
+  const {status: statusPublicWorkspace, data: resPublicWorkspaces} = useFirestoreCollectionData(query(refWorkspace,
+      where(KeyWorkspace.workspaceVisibility, '==', WorkspaceVisibility.Public),
+  ), {
+    idField: 'uid',
+  });
+
+
+  if (statusPrivateWorkspace === 'loading' || statusPublicWorkspace === 'loading') {
+    return <>loading workspace data...</>;
+  }
+  
+  const workspaces = uniqBy(union((resPrivateWorkspaces as Array<TypeWorkspace>), (resPublicWorkspaces as Array<TypeWorkspace>)), 'uid')
+
 
   if (statusUsers === 'loading' || statusNotifications === 'loading') {
     return <div>fetching user data...</div>;
@@ -93,7 +126,8 @@ export const ContextProvider = ({children }: props)=>{
     setRefresh,
     history,
     storage,
-    notifications
+    notifications,
+    workspaces
   });
 
   return (
@@ -103,10 +137,11 @@ export const ContextProvider = ({children }: props)=>{
       users,
       firestore,
       refresh,
-      setRefresh,
+      setRefresh: doRefresh,
       history,
       storage,
-      notifications
+      notifications,
+      workspaces,
     } as typeGlobalContext}>
       {children}
     </globalContext.Provider>
