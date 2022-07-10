@@ -18,7 +18,8 @@ export const Invitation : React.FC<props> = ({}) => {
       invitation
       {
         userInvitations.map((invitation)=>{
-          if(invitation.invitationType == EnumItemType.Workspace) return (<InvitationItemWorkspace key={nanoid()} invitation={invitation} />);
+          if(invitation.invitationType == EnumItemType.Workspace) 
+            return (<InvitationItemWorkspace key={nanoid()} invitation={invitation} />);
           return (<InvitationItemBoard key={nanoid()} invitation={invitation} />);
         })
       }

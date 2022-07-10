@@ -4,6 +4,8 @@ import { addDoc, collection, DocumentReference } from 'firebase/firestore';
 import React, { useState } from 'react';
 import { useGlobalContext } from '../../../../context/ContextProvider';
 import { EnumItemType, Tables, TypeInvitationLink } from '../../../../Model/model';
+import { useWorkspaceContext } from '../../../Workspace/WorkspaceContext';
+import { useBoardContext } from '../../BoardContext';
 
 type props = {
   itemType : EnumItemType
@@ -12,12 +14,13 @@ type props = {
 
 export const BoardMemberGetLink : React.FC<props> = ({itemType, refItem}) => {
   const {firestore} = useGlobalContext();
+  const {board} = useBoardContext();
+  const {workspace} = useWorkspaceContext();
   const [completed, setCompleted] = useState(false);
   const [getLink, setGetLink] = useState(false);
   const [link, setLink] = useState('');
   const [expirationDate, setExpirationDate] = useState(1);
 
-  
   const generateLink = async ()=>{
     const expiredDate = new Date;
     expiredDate.setDate(expiredDate.getDate() + expirationDate);
@@ -26,6 +29,8 @@ export const BoardMemberGetLink : React.FC<props> = ({itemType, refItem}) => {
       refItem: refItem,
       InvitationExpired: expiredDate.getTime(),
       InvitationType: itemType,
+      BoardUid: board.uid as string,
+      WorkspaceUid: workspace.uid as string,
     } as TypeInvitationLink).then( (data) =>{
       setLink(window.location.protocol + '//' + window.location.host + '/join/' + data.id);
       setCompleted(true);

@@ -33,6 +33,6 @@ export const Join = () => {
   if (invitationLink.InvitationType == EnumItemType.Workspace) {
     return (<JoinWorkspace refWorkspace={invitationLink.refItem}/>);
   }
-  return (<JoinBoard refBoard={invitationLink.refItem}/>);
+  return (<JoinBoard invitationLink={invitationLink} />);
 };
 

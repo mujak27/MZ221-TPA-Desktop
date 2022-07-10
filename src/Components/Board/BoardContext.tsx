@@ -47,7 +47,7 @@ type props = {
 }
 
 export const BoardContext : React.FC<props> = ({children}) => {
-  const {firestore, setRefresh} = useGlobalContext();
+  const {firestore} = useGlobalContext();
 
   const {boardUid} = useParams() as {boardUid : string};
 

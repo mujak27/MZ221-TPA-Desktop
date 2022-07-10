@@ -197,5 +197,7 @@ export type TypeInvitationLink = {
   InvitationType : EnumItemType,
   refItem : DocumentReference,
   InvitationExpired : number,
+  WorkspaceUid : string,
+  BoardUid : string,
 }
 

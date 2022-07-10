@@ -1,7 +1,7 @@
 import { IonButton, IonChip, IonInput, IonTitle } from '@ionic/react';
 import { addDoc, collection } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useGlobalContext } from '../../../context/ContextProvider';
 import { Tables, TypeTag } from '../../../Model/model';
 import '../../style.css';

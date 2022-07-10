@@ -1,31 +1,25 @@
 /* eslint-disable no-unused-vars */
 import { IonButton, IonCard, IonCardContent, IonCardTitle } from '@ionic/react';
-import { doc, DocumentReference, writeBatch } from 'firebase/firestore';
+import { doc, writeBatch } from 'firebase/firestore';
 import React from 'react';
 import { useFirestoreDocData } from 'reactfire';
 import { useGlobalContext } from '../../context/ContextProvider';
-import { getPath } from '../../Helper';
-import { TypeBoard, TypeWorkspace } from '../../Model/model';
+import { Tables, TypeBoard, TypeInvitationLink, TypeWorkspace } from '../../Model/model';
 
 type props = {
-  refBoard : DocumentReference,
+  invitationLink : TypeInvitationLink,
 }
 
-export const JoinBoard : React.FC<props> = ({refBoard}) => {
+export const JoinBoard : React.FC<props> = ({invitationLink}) => {
   const {user, firestore, history, setRefresh} = useGlobalContext();
-  const {status: statusBoard, data: resBoard} = useFirestoreDocData(refBoard, {
+  const {status: statusBoard, data: resBoard} = useFirestoreDocData(invitationLink.refItem, {
     idField: 'uid',
   });
 
-  const pathWorkspace = Array.from(getPath(refBoard)).slice(0,2);
-  console.info(pathWorkspace);
-  // @ts-ignore
-  const refWorkspace = doc(firestore, ...pathWorkspace)
-  console.info(refWorkspace);
+  const refWorkspace = doc(firestore, Tables.Workspaces, invitationLink.WorkspaceUid);
   const {status: statusWorkspace, data: resWorkspace} = useFirestoreDocData(refWorkspace, {
     idField: 'uid',
   });
-
 
   if (statusBoard === 'loading' || statusWorkspace === 'loading') {
     return <>loading board data...</>;
@@ -39,7 +33,7 @@ export const JoinBoard : React.FC<props> = ({refBoard}) => {
       console.info('join board');
       console.info(user);
       console.info(user.userUid);
-      const docRef = refBoard;
+      const docRef = invitationLink.refItem;
       const batch = writeBatch(firestore);
       batch.update(docRef, {
         boardMembers: [
@@ -61,21 +55,23 @@ export const JoinBoard : React.FC<props> = ({refBoard}) => {
   };
 
   const redirectToWorkspace = ()=>{
-    history.push('/workspace/' + board.uid as string);
+    history.push('/workspace/' + workspace.uid as string + '/board' + board.uid as string);
     setRefresh(true);
   }
 
-  if(!workspace.workspaceMembers.includes(user.userUid)) 
+  console.info(workspace);
+
+  if(!(workspace.workspaceMembers.includes(user.userUid))) 
   return <> join the workspace first ! </>
 
   if(board.boardMembers && board.boardMembers.includes(user.userUid)){
     return (
       <IonCard className='ion-padding'>
         <IonCardTitle>
-          you are already a member of workspace {board.boardName}
+          you are already a member of board {board.boardName}
         </IonCardTitle>
         <IonCardContent>
-          <IonButton onClick={redirectToWorkspace}>redirect to workspace {board.boardName}</IonButton>
+          <IonButton onClick={redirectToWorkspace}>redirect to board {board.boardName}</IonButton>
         </IonCardContent>
       </IonCard>
     )

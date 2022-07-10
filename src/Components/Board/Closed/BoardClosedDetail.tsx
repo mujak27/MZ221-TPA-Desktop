@@ -58,6 +58,7 @@ export const BoardClosedDetail : React.FC<props> = ({}) => {
     batch.update(refWorkspace, {
       workspaceBoardUids: newWorkspaceBoardUids, 
     } as TypeWorkspace)
+    batch.commit();
     history.push(`/workspace/${workspaceUid}/board/${boardUid}`);
     setRefresh(true);
   }

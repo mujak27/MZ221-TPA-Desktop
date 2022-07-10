@@ -26,27 +26,6 @@ export const InvitationItemWorkspace : React.FC<props> = ({invitation}) => {
 
   const workspace = resWorkspace as TypeWorkspace;
 
-  // useEffect(()=>{
-  //   if (workspace.workspaceMembers.includes(user.userUid)) {
-  //     const f = ()=>{
-  //       const refUser = doc(firestore, Tables.Users, user.userUid);
-  //       const batch = writeBatch(firestore);
-  //       batch.update(refUser, {
-  //         userInvitation : [
-  //           ...(user.userInvitation.filter((invitation)=>{
-  //             if(invitation.itemUid == workspace.uid as string) return false
-  //             return true;
-  //           }))
-  //         ]
-  //       } as TypeUser);
-  //       batch.commit();
-  //       setRefresh(true);
-  //       return null;
-  //     }
-  //     f();
-  //   }
-  // }, []);
-
   const onClickHandle = async ()=>{
     try {
       const docRef = invitation.itemRef;

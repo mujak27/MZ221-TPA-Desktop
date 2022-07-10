@@ -1,7 +1,7 @@
 import { IonButton, IonCheckbox, IonContent, IonHeader, IonInput, IonItem, IonText, IonTitle } from '@ionic/react';
 import { doc, DocumentReference, writeBatch } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Redirect } from 'react-router';
 import { useGlobalContext } from '../../../context/ContextProvider';
@@ -24,7 +24,7 @@ type props = {
 export const BoardDetail : React.FC<props> = ({}) => {
   const {firestore, history, setRefresh, user} = useGlobalContext();
   const {workspace} = useWorkspaceContext();
-  const {board, refBoard, selectedTags} = useBoardContext();
+  const {board, refBoard} = useBoardContext();
   const {groups: groupContext} = useBoardContext();
 
   enum tabs {

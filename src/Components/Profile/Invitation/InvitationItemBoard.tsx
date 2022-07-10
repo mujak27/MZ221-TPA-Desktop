@@ -11,7 +11,7 @@ type props = {
 }
 
 export const InvitationItemBoard : React.FC<props> = ({invitation}) => {
-  const {user, firestore, setRefresh} = useGlobalContext();
+  const {user, firestore} = useGlobalContext();
   const refBoard = invitation.itemRef;
 
   const {status: statusBoard, data: resBoard} = useFirestoreDocData(refBoard, {
@@ -38,7 +38,7 @@ export const InvitationItemBoard : React.FC<props> = ({invitation}) => {
         ]
       } as TypeUser);
       batch.commit();
-      setRefresh(true);
+      // setRefresh(true);
       return null;
     }
     f();
