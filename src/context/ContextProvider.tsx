@@ -7,7 +7,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { useFirestore, useFirestoreCollectionData, useStorage } from 'reactfire';
 import { firebaseConfig } from '../Model/firebase';
-import { enumNotifFreq, KeyWorkspace, Tables, TypeNotification, TypeUser, TypeWorkspace, WorkspaceVisibility } from '../Model/model';
+import { enumNotifFreq, KeyWorkspace, Tables, TypeUser, TypeWorkspace, WorkspaceVisibility } from '../Model/model';
 
 type typeGlobalContext = {
   auth : Auth,
@@ -18,7 +18,6 @@ type typeGlobalContext = {
   setRefresh : React.Dispatch<React.SetStateAction<boolean>>,
   history: any,
   storage: FirebaseStorage,
-  notifications : Array<TypeNotification>,
   workspaces : Array<TypeWorkspace>
 }
 
@@ -40,7 +39,6 @@ let globalContext = createContext<typeGlobalContext>({
   setRefresh: '' as unknown as React.Dispatch<React.SetStateAction<boolean>>,
   history: null,
   storage: getStorage(initializeApp(firebaseConfig)),
-  notifications : [],
   workspaces: [],
 });
 
@@ -68,14 +66,8 @@ export const ContextProvider = ({children }: props)=>{
     idField: 'uid'
   });
 
-  const refNotifications = collection(firestore, Tables.Users, userUid, Tables.Notifications);
-  const {status : statusNotifications, data : resNotifications} = useFirestoreCollectionData(refNotifications, {
-    idField : 'uid'
-  });
-
   useEffect(()=>{
     console.info('refreshed');
-    // if(refresh) setRefresh(false);
   }, [refresh]);
 
 
@@ -102,14 +94,10 @@ export const ContextProvider = ({children }: props)=>{
   const workspaces = uniqBy(union((resPrivateWorkspaces as Array<TypeWorkspace>), (resPublicWorkspaces as Array<TypeWorkspace>)), 'uid')
 
 
-  if (statusUsers === 'loading' || statusNotifications === 'loading') {
+  if (statusUsers === 'loading') {
     return <div>fetching user data...</div>;
   }
 
-
-
-  const notifications = resNotifications as Array<TypeNotification>;
-  console.info(notifications);
 
   const users = resUsers as Array<TypeUser>;
   const user = users.filter((user)=>{return user.userUid == userUid})[0];  
@@ -126,7 +114,6 @@ export const ContextProvider = ({children }: props)=>{
     setRefresh,
     history,
     storage,
-    notifications,
     workspaces
   });
 
@@ -140,7 +127,6 @@ export const ContextProvider = ({children }: props)=>{
       setRefresh: doRefresh,
       history,
       storage,
-      notifications,
       workspaces,
     } as typeGlobalContext}>
       {children}

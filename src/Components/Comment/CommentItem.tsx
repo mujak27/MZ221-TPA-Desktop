@@ -46,14 +46,15 @@ export const CommentItem : React.FC<props> = ({comment, card}) => {
     await batch.commit();
 
     let userGetNotif = uniq(union(card.cardWatchers, comment.commentMentions, comment.userUids))
+    console.info('notified');
+    console.info(userGetNotif);
     userGetNotif.forEach((user_uid)=>{
-      if(user_uid == user.uid as string) return;
+      if(user_uid == user.userUid) return;
       const refUser = collection(firestore, Tables.Users, user_uid, Tables.Notifications);
       addDoc(refUser, {
         notificationValue : `${user.userName} has replied to card ${card.cardTitle} with '${reply}'`
       } as TypeNotification)
     })
-    console.info(userGetNotif);
     setReply('');
   }
 
